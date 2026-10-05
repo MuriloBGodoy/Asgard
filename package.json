@@ -1,0 +1,20 @@
+{
+  "name": "asgard",
+  "private": true,
+  "workspaces": [
+    "apps/desktop"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @asgard/desktop",
+    "dev:web": "npm run dev:web -w @asgard/desktop",
+    "dev:server": "cargo run -p asgard-server",
+    "build": "npm run build -w @asgard/desktop",
+    "bindings": "cargo test -p asgard-protocol",
+    "typecheck": "npm run typecheck -w @asgard/desktop",
+    "check": "cargo check --workspace && cargo clippy --workspace -- -D warnings && npm run typecheck",
+    "fmt": "cargo fmt --all && prettier --write \"apps/desktop/src/**/*.{ts,tsx,css}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.9.9"
+  }
+}
