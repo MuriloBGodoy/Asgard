@@ -219,5 +219,9 @@ export function useAsgard(serverUrl: string, username: string) {
     gateway.current?.send({ type: "updateUserStatus", data: { status } } as any);
   }, []);
 
-  return { ...state, sendMessage, loadHistory, createChannel, editChannel, deleteChannel, joinVoice, leaveVoice, updateVoiceState, updateUserStatus };
+  const updateProfile = useCallback((profile: { username?: string, avatarUrl?: string, bannerColor?: string, bio?: string }) => {
+    gateway.current?.send({ type: "updateProfile", data: profile } as any);
+  }, []);
+
+  return { ...state, sendMessage, loadHistory, createChannel, editChannel, deleteChannel, joinVoice, leaveVoice, updateVoiceState, updateUserStatus, updateProfile };
 }

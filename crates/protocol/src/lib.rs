@@ -27,6 +27,12 @@ pub struct User {
     pub id: Uuid,
     pub username: String,
     pub status: UserStatus,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub avatar_url: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub banner_color: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub bio: Option<String>,
 }
 
 /// Um "Realm" é o equivalente a um servidor do Discord / time do Teams.
@@ -109,6 +115,17 @@ pub enum ClientEvent {
     LeaveVoice,
     UpdateVoiceState(UpdateVoiceState),
     UpdateUserStatus(UpdateUserStatus),
+    UpdateProfile(UpdateProfile),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct UpdateProfile {
+    pub username: Option<String>,
+    pub avatar_url: Option<String>,
+    pub banner_color: Option<String>,
+    pub bio: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

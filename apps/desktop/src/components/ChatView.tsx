@@ -3,6 +3,7 @@ import { useVirtualizer } from "@tanstack/react-virtual";
 import type { Channel } from "../bindings/Channel";
 import type { Message } from "../bindings/Message";
 import type { User } from "../bindings/User";
+import { ProfilePopover } from "./ProfilePopover";
 
 interface Props {
   channel?: Channel;
@@ -137,7 +138,9 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
                   >
                     <div className="message-item" style={{ padding: "12px 0" }}>
                       <div className="message-header">
-                        <span className="message-author">{m.author.username}</span>
+                        <ProfilePopover user={m.author}>
+                          <span className="message-author">{m.author.username}</span>
+                        </ProfilePopover>
                         <span className="message-time">{timeFormat.format(m.sentAt)}</span>
                       </div>
                       <div className="message-content">
@@ -179,24 +182,26 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
             <>
               <div className="channel-group-title">Disponíveis — {availableOrBusy.length}</div>
               {availableOrBusy.map(user => (
-                <div key={user.id} className="member-item">
-                  <div style={{ position: "relative", width: 32, height: 32 }}>
-                    <span className="user-avatar" style={{width: "100%", height: "100%"}}>
-                      {user.username.substring(0, 2).toUpperCase()}
-                    </span>
-                    <span style={{
-                      position: "absolute",
-                      bottom: -2, right: -2,
-                      width: 12, height: 12,
-                      borderRadius: "50%",
-                      background: user.st.color,
-                      border: "2px solid var(--bg-panel)"
-                    }} title={user.st.label} />
+                <ProfilePopover key={user.id} user={user}>
+                  <div className="member-item">
+                    <div style={{ position: "relative", width: 32, height: 32 }}>
+                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatarUrl ? `url(${user.avatarUrl})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
+                        {!user.avatarUrl && user.username.substring(0, 2).toUpperCase()}
+                      </span>
+                      <span style={{
+                        position: "absolute",
+                        bottom: -2, right: -2,
+                        width: 12, height: 12,
+                        borderRadius: "50%",
+                        background: user.st.color,
+                        border: "2px solid var(--bg-panel)"
+                      }} title={user.st.label} />
+                    </div>
+                    <div className="member-info">
+                      <span className="member-name">{user.username}</span>
+                    </div>
                   </div>
-                  <div className="member-info">
-                    <span className="member-name">{user.username}</span>
-                  </div>
-                </div>
+                </ProfilePopover>
               ))}
             </>
           )}
@@ -207,24 +212,26 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
                 Ausentes — {away.length}
               </div>
               {away.map(user => (
-                <div key={user.id} className="member-item" style={{ opacity: 0.5 }}>
-                  <div style={{ position: "relative", width: 32, height: 32 }}>
-                    <span className="user-avatar" style={{width: "100%", height: "100%"}}>
-                      {user.username.substring(0, 2).toUpperCase()}
-                    </span>
-                    <span style={{
-                      position: "absolute",
-                      bottom: -2, right: -2,
-                      width: 12, height: 12,
-                      borderRadius: "50%",
-                      background: user.st.color,
-                      border: "2px solid var(--bg-panel)"
-                    }} title={user.st.label} />
+                <ProfilePopover key={user.id} user={user}>
+                  <div className="member-item" style={{ opacity: 0.5 }}>
+                    <div style={{ position: "relative", width: 32, height: 32 }}>
+                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatarUrl ? `url(${user.avatarUrl})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
+                        {!user.avatarUrl && user.username.substring(0, 2).toUpperCase()}
+                      </span>
+                      <span style={{
+                        position: "absolute",
+                        bottom: -2, right: -2,
+                        width: 12, height: 12,
+                        borderRadius: "50%",
+                        background: user.st.color,
+                        border: "2px solid var(--bg-panel)"
+                      }} title={user.st.label} />
+                    </div>
+                    <div className="member-info">
+                      <span className="member-name">{user.username}</span>
+                    </div>
                   </div>
-                  <div className="member-info">
-                    <span className="member-name">{user.username}</span>
-                  </div>
-                </div>
+                </ProfilePopover>
               ))}
             </>
           )}
@@ -235,24 +242,26 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
                 Offline — {offline.length}
               </div>
               {offline.map(user => (
-                <div key={user.id} className="member-item" style={{ opacity: 0.5 }}>
-                  <div style={{ position: "relative", width: 32, height: 32 }}>
-                    <span className="user-avatar" style={{width: "100%", height: "100%"}}>
-                      {user.username.substring(0, 2).toUpperCase()}
-                    </span>
-                    <span style={{
-                      position: "absolute",
-                      bottom: -2, right: -2,
-                      width: 12, height: 12,
-                      borderRadius: "50%",
-                      background: user.st.color,
-                      border: "2px solid var(--bg-panel)"
-                    }} title="Offline" />
+                <ProfilePopover key={user.id} user={user}>
+                  <div className="member-item" style={{ opacity: 0.5 }}>
+                    <div style={{ position: "relative", width: 32, height: 32 }}>
+                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatarUrl ? `url(${user.avatarUrl})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
+                        {!user.avatarUrl && user.username.substring(0, 2).toUpperCase()}
+                      </span>
+                      <span style={{
+                        position: "absolute",
+                        bottom: -2, right: -2,
+                        width: 12, height: 12,
+                        borderRadius: "50%",
+                        background: user.st.color,
+                        border: "2px solid var(--bg-panel)"
+                      }} title="Offline" />
+                    </div>
+                    <div className="member-info">
+                      <span className="member-name">{user.username}</span>
+                    </div>
                   </div>
-                  <div className="member-info">
-                    <span className="member-name">{user.username}</span>
-                  </div>
-                </div>
+                </ProfilePopover>
               ))}
             </>
           )}

@@ -7,6 +7,7 @@ import { Login } from "./components/Login";
 import { RealmBar } from "./components/RealmBar";
 import { UserProfileBar } from "./components/UserProfileBar";
 import { SettingsGeneral } from "./components/SettingsGeneral";
+import { ProfileSettings } from "./components/ProfileSettings";
 import { useAsgard } from "./hooks/useAsgard";
 import { getAppInfo, type AppInfo } from "./lib/config";
 
@@ -120,7 +121,7 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
         />
 
         <UserProfileBar 
-          username={username} 
+          user={asgard.me!}
           inVoiceChannel={!!activeVoiceId}
           onDisconnect={() => setActiveVoiceId(null)}
           micMuted={micMuted}
@@ -147,7 +148,7 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
             path="/channels/:channelId" 
             element={<ChannelRoute asgard={asgard} realm={activeRealm} />} 
           />
-          <Route path="/settings/profile" element={<div style={{padding: 24}}>Configurações de Perfil</div>} />
+          <Route path="/settings/profile" element={<ProfileSettings me={asgard.me!} onUpdate={asgard.updateProfile} />} />
           <Route path="/settings/general" element={<SettingsGeneral />} />
           <Route path="/meta" element={<div style={{padding: 24}}>Carregando Metaverso 2D...</div>} />
           <Route path="*" element={<Navigate to="/" replace />} />

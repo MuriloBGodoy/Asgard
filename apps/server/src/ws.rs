@@ -37,6 +37,9 @@ async fn handle_socket(socket: WebSocket, state: AppState) {
                         id: Uuid::new_v4(),
                         username,
                         status: asgard_protocol::UserStatus::Online,
+                        avatar_url: None,
+                        banner_color: None,
+                        bio: None,
                     };
                 }
                 send_error(&tx, "username deve ter entre 2 e 32 caracteres");
@@ -107,7 +110,25 @@ async fn handle_socket(socket: WebSocket, state: AppState) {
             }
             Ok(ClientEvent::UpdateUserStatus(payload)) => {
                 user.status = payload.status;
-                state.update_user_status(&user).await;
+                state.update_user(&user).await;
+            }
+            Ok(ClientEvent::UpdateProfile(payload)) => {
+                if let Some(username) = payload.username {
+                    let trimmed = username.trim().to_owned();
+                    if USERNAME_LEN.contains(&trimmed.chars().count()) {
+                        user.username = trimmed;
+                    }
+                }
+                if let Some(avatar) = payload.avatar_url {
+                    user.avatar_url = Some(avatar);
+                }
+                if let Some(banner) = payload.banner_color {
+                    user.banner_color = Some(banner);
+                }
+                if let Some(bio) = payload.bio {
+                    user.bio = Some(bio);
+                }
+                state.update_user(&user).await;
             }
             Ok(ClientEvent::Identify(_)) => send_error(&tx, "já identificado"),
             Err(err) => send_error(&tx, &format!("evento inválido: {err}")),

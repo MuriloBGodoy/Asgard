@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { UserStatus } from "../bindings/UserStatus";
+import type { User } from "../bindings/User";
 
 interface Props {
-  username: string;
+  user: User;
   inVoiceChannel?: boolean;
   onDisconnect?: () => void;
   micMuted?: boolean;
@@ -15,7 +16,7 @@ interface Props {
 }
 
 export function UserProfileBar({ 
-  username, 
+  user, 
   inVoiceChannel, 
   onDisconnect,
   micMuted = false,
@@ -52,13 +53,14 @@ export function UserProfileBar({
         className="user-avatar interactive" 
         onClick={() => navigate("/settings/profile")}
         title="Configurações de Perfil"
+        style={{ backgroundImage: user.avatarUrl ? `url(${user.avatarUrl})` : "none", backgroundSize: "cover", backgroundPosition: "center" }}
       >
-        {username.substring(0, 2).toUpperCase()}
+        {!user.avatarUrl && user.username.substring(0, 2).toUpperCase()}
       </div>
       
       {/* Informações (Status alterável) */}
       <div className="user-info" style={{ position: "relative", display: "flex", flexDirection: "column", justifyContent: "center" }}>
-        <div className="user-name">{username}</div>
+        <div className="user-name">{user.username}</div>
         <div 
           className="user-status interactive"
           onClick={() => setShowStatusMenu(!showStatusMenu)}
