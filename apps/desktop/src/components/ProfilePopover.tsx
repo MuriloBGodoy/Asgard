@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+﻿import React, { useState, useRef, useEffect } from "react";
 import type { User } from "../bindings/User";
 import { createPortal } from "react-dom";
 
@@ -22,7 +22,7 @@ export function ProfilePopover({ user, children }: Props) {
       let top = rect.top;
 
       if (left < 16) {
-        // Se não couber à esquerda, colocamos à direita
+        // Se nÃ£o couber Ã  esquerda, colocamos Ã  direita
         left = rect.right + 16;
       }
 
@@ -60,7 +60,7 @@ export function ProfilePopover({ user, children }: Props) {
             position: "fixed",
             top: Math.max(16, Math.min(window.innerHeight - 380, coords.top)),
             left: coords.left,
-            width: 300,
+            width: 320,
             background: "var(--bg-panel)",
             borderRadius: 8,
             boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
@@ -70,66 +70,67 @@ export function ProfilePopover({ user, children }: Props) {
         >
           {/* Banner */}
           <div style={{ 
-            height: 100, 
+            height: 120, 
             width: "100%",
-            background: (user.bannerColor && user.bannerColor.startsWith("data:")) ? `url(${user.bannerColor})` : (user.bannerColor ?? "#5865F2"),
+            backgroundColor: (user.bannerColor && !user.bannerColor.startsWith("data:")) ? user.bannerColor : "#5865F2",
+            backgroundImage: (user.bannerColor && user.bannerColor.startsWith("data:")) ? `url(${user.bannerColor})` : "none",
             backgroundSize: "cover",
             backgroundPosition: "center"
           }} />
           
-          <div style={{ padding: "0 16px 16px", position: "relative" }}>
-            {/* Avatar Profile Box */}
-            <div style={{ 
-              width: 72, 
-              height: 72, 
-              borderRadius: "50%", 
-              background: "var(--bg-panel)", 
-              position: "absolute", 
-              top: -36, 
-              padding: 6,
-              boxSizing: "border-box"
-            }}>
-              <div style={{
-                width: "100%",
-                height: "100%",
-                borderRadius: "50%",
-                background: "var(--primary)",
-                display: "grid",
-                placeItems: "center",
-                color: "#fff",
-                fontSize: 20,
-                fontWeight: 600,
-                backgroundImage: user.avatarUrl ? `url(${user.avatarUrl})` : "none",
-                backgroundSize: "cover",
-                backgroundPosition: "center",
+                    <div style={{ padding: "0 16px 16px" }}>
+            <div style={{ display: "flex", gap: "12px", alignItems: "flex-end", marginTop: "-30px", marginBottom: "12px" }}>
+              {/* Avatar Profile Box */}
+              <div style={{ 
+                width: 80, 
+                height: 80, 
+                borderRadius: "50%", 
+                background: "var(--bg-panel)", 
+                padding: 6,
+                boxSizing: "border-box",
+                flexShrink: 0
               }}>
-                {!user.avatarUrl && user.username.substring(0, 2).toUpperCase()}
+                <div style={{
+                  width: "100%",
+                  height: "100%",
+                  borderRadius: "50%",
+                  background: "var(--primary)",
+                  display: "grid",
+                  placeItems: "center",
+                  color: "#fff",
+                  fontSize: 24,
+                  fontWeight: 600,
+                  backgroundImage: user.avatarUrl ? `url(${user.avatarUrl})` : "none",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                }}>
+                  {!user.avatarUrl && user.username.substring(0, 2).toUpperCase()}
+                </div>
+              </div>
+
+              {/* User Details */}
+              <div style={{ paddingBottom: "6px", display: "flex", flexDirection: "column", gap: "4px" }}>
+                <div style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.2 }}>{user.username}</div>
+                <div style={{ fontSize: 14, color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ 
+                    width: 10, height: 10, borderRadius: "50%", 
+                    backgroundColor: user.status === "online" ? "#43b581" : user.status === "away" ? "#faa61a" : user.status === "busy" ? "#f04747" : "#747f8d" 
+                  }} />
+                  {user.status === "online" ? "Online" : user.status === "away" ? "Ausente" : user.status === "busy" ? "Ocupado" : "Invisível"}
+                </div>
               </div>
             </div>
-
-            {/* User Details */}
+              
             <div style={{ 
               background: "var(--bg-hover)", 
               borderRadius: 8, 
-              padding: 16, 
-              marginTop: 40,
-              boxShadow: "inset 0 0 0 1px var(--border)"
+              padding: 12, 
+              border: "1px solid var(--border)"
             }}>
-              <div style={{ fontSize: 18, fontWeight: 700 }}>{user.username}</div>
-              <div style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 2, display: "flex", alignItems: "center", gap: 4 }}>
-                <div style={{ 
-                  width: 8, height: 8, borderRadius: "50%", 
-                  backgroundColor: user.status === "online" ? "#43b581" : user.status === "away" ? "#faa61a" : user.status === "busy" ? "#f04747" : "#747f8d" 
-                }} />
-                {user.status}
-              </div>
-              
-              <div style={{ width: "100%", height: 1, background: "var(--border)", margin: "12px 0" }} />
-              
-              <div style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: 8 }}>
+              <div style={{ fontSize: 12, fontWeight: 700, textTransform: "uppercase", color: "var(--text-secondary)", marginBottom: 8 }}>
                 Sobre Mim
               </div>
-              <div style={{ fontSize: 13, whiteSpace: "pre-wrap", color: "var(--text-primary)" }}>
+              <div style={{ fontSize: 14, whiteSpace: "pre-wrap", color: "var(--text-primary)", lineHeight: 1.4 }}>
                 {user.bio || "Este usuário não tem nada a dizer sobre si mesmo."}
               </div>
             </div>
@@ -140,3 +141,4 @@ export function ProfilePopover({ user, children }: Props) {
     </>
   );
 }
+

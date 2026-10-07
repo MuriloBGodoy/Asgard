@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { ProfilePopover } from "./ProfilePopover";
 import type { Realm } from "../bindings/Realm";
 import type { User } from "../bindings/User";
 import type { ConnectionStatus } from "../hooks/useAsgard";
@@ -142,7 +143,8 @@ export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, 
             {voiceStates?.[c.id]?.map((participant) => {
               const isSpeaking = speakers.includes(participant.user.username);
               return (
-                <div key={participant.user.id} style={{ display: "flex", alignItems: "center", padding: "4px 12px 4px 32px", fontSize: "12px", color: "var(--text-secondary)", gap: "8px" }}>
+                <ProfilePopover key={participant.user.id} user={participant.user}>
+                  <div style={{ display: "flex", alignItems: "center", padding: "4px 12px 4px 32px", fontSize: "12px", color: "var(--text-secondary)", gap: "8px" }}>
                   <div style={{ 
                     width: 24, height: 24, borderRadius: "50%", background: "var(--primary)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", flexShrink: 0,
                     border: isSpeaking ? "2px solid #43b581" : "2px solid transparent",
@@ -175,7 +177,8 @@ export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, 
                   )}
                 </div>
               </div>
-            );
+            </ProfilePopover>
+              );
             })}
           </div>
         ))}
@@ -289,3 +292,4 @@ export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, 
     </>
   );
 }
+
