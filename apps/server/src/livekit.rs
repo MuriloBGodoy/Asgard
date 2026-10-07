@@ -38,9 +38,8 @@ pub async fn generate_token(
         StatusCode::INTERNAL_SERVER_ERROR
     })?;
 
-    // ID do participante pode ser gerado provisoriamente aqui para o demo,
-    // ou podemos adicionar `participant_id` na query se preferir.
-    let participant_id = Uuid::new_v4().to_string();
+    // ID do participante usando o username por enquanto
+    let participant_id = query.participant_name.clone();
 
     let token = AccessToken::with_api_key(&api_key, &api_secret)
         .with_identity(&participant_id)

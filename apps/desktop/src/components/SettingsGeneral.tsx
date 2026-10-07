@@ -36,11 +36,13 @@ export function SettingsGeneral() {
   function saveMic(id: string) {
     setMicId(id);
     localStorage.setItem("asgard_mic_device", id);
+    window.dispatchEvent(new Event("asgard_device_change"));
   }
 
   function saveSpeaker(id: string) {
     setSpeakerId(id);
     localStorage.setItem("asgard_speaker_device", id);
+    window.dispatchEvent(new Event("asgard_device_change"));
   }
 
   function saveVolume(vol: number) {

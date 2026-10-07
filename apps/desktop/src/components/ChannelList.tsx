@@ -34,6 +34,16 @@ export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, 
   const text = realm?.channels.filter((c) => c.kind === "text") ?? [];
   const voice = realm?.channels.filter((c) => c.kind === "voice") ?? [];
 
+  const [speakers, setSpeakers] = useState<string[]>([]);
+
+  useEffect(() => {
+    function handleSpeaking(e: any) {
+      setSpeakers(e.detail || []);
+    }
+    window.addEventListener("asgard_speaking_update", handleSpeaking);
+    return () => window.removeEventListener("asgard_speaking_update", handleSpeaking);
+  }, []);
+
   useEffect(() => {
     function handleClick() {
       if (contextMenu.visible) setContextMenu({ ...contextMenu, visible: false });
@@ -129,16 +139,25 @@ export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, 
               </svg>
               {c.name}
             </div>
-            {voiceStates?.[c.id]?.map((participant) => (
-              <div key={participant.user.id} style={{ display: "flex", alignItems: "center", padding: "4px 12px 4px 32px", fontSize: "12px", color: "var(--text-secondary)", gap: "8px" }}>
-                <div style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--primary)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", flexShrink: 0 }}>
-                  {participant.user.username.substring(0, 2).toUpperCase()}
-                </div>
-                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{participant.user.username}</span>
-                
-                {/* Ícones de status de voz */}
-                <div style={{ display: "flex", gap: "4px" }}>
-                  {participant.micMuted && (
+            {voiceStates?.[c.id]?.map((participant) => {
+              const isSpeaking = speakers.includes(participant.user.username);
+              return (
+                <div key={participant.user.id} style={{ display: "flex", alignItems: "center", padding: "4px 12px 4px 32px", fontSize: "12px", color: "var(--text-secondary)", gap: "8px" }}>
+                  <div style={{ 
+                    width: 24, height: 24, borderRadius: "50%", background: "var(--primary)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", flexShrink: 0,
+                    border: isSpeaking ? "2px solid #43b581" : "2px solid transparent",
+                    boxShadow: isSpeaking ? "0 0 8px rgba(67, 181, 129, 0.4)" : "none",
+                    transition: "all 0.1s"
+                  }}>
+                    {participant.user.username.substring(0, 2).toUpperCase()}
+                  </div>
+                  <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, color: isSpeaking ? "var(--text-primary)" : "inherit" }}>
+                    {participant.user.username}
+                  </span>
+                  
+                  {/* Ícones de status de voz */}
+                  <div style={{ display: "flex", gap: "4px" }}>
+                    {participant.micMuted && (
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2">
                       <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
                       <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
@@ -156,7 +175,8 @@ export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, 
                   )}
                 </div>
               </div>
-            ))}
+            );
+            })}
           </div>
         ))}
       </nav>
