@@ -3,8 +3,9 @@ import type { ErrorPayload } from "./ErrorPayload";
 import type { Message } from "./Message";
 import type { Ready } from "./Ready";
 import type { User } from "./User";
+import type { VoicePresenceUpdated } from "./VoicePresenceUpdated";
 
 /**
  * Eventos enviados pelo servidor.
  */
-export type ServerEvent = { "type": "ready", "data": Ready } | { "type": "messageCreated", "data": Message } | { "type": "userJoined", "data": User } | { "type": "userLeft", "data": User } | { "type": "error", "data": ErrorPayload };
+export type ServerEvent = { "type": "ready", "data": Ready } | { "type": "messageCreated", "data": Message } | { "type": "userJoined", "data": User } | { "type": "userLeft", "data": User } | { "type": "voicePresenceUpdated", "data": VoicePresenceUpdated } | { "type": "error", "data": ErrorPayload };

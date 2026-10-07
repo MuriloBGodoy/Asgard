@@ -6,6 +6,8 @@ import type { User } from "../bindings/User";
 import { Gateway } from "../lib/gateway";
 import { toWsUrl } from "../lib/config";
 
+import type { VoiceParticipant } from "../bindings/VoiceParticipant";
+
 export type ConnectionStatus = "connecting" | "open" | "closed";
 
 interface State {
@@ -14,6 +16,7 @@ interface State {
   realms: Realm[];
   online: Record<string, User>;
   messages: Record<string, Message[]>;
+  voiceStates: Record<string, VoiceParticipant[]>;
   lastError?: string;
 }
 
@@ -25,7 +28,7 @@ type Action =
   | { type: "channelEdited"; realmId: string; channelId: string; channel: any }
   | { type: "channelDeleted"; realmId: string; channelId: string };
 
-const initialState: State = { status: "connecting", realms: [], online: {}, messages: {} };
+const initialState: State = { status: "connecting", realms: [], online: {}, messages: {}, voiceStates: {} };
 
 function mergeMessages(current: Message[] = [], incoming: Message[]): Message[] {
   const byId = new Map(current.map((m) => [m.id, m]));
@@ -41,7 +44,16 @@ function reduceServerEvent(state: State, event: ServerEvent): State {
         me: event.data.user,
         realms: event.data.realms,
         online: Object.fromEntries(event.data.online.map((u) => [u.id, u])),
+        voiceStates: event.data.voiceStates,
         lastError: undefined,
+      };
+    case "voicePresenceUpdated":
+      return {
+        ...state,
+        voiceStates: {
+          ...state.voiceStates,
+          [event.data.channelId]: event.data.participants,
+        },
       };
     case "messageCreated": {
       const msg = event.data;
@@ -186,5 +198,17 @@ export function useAsgard(serverUrl: string, username: string) {
     [serverUrl],
   );
 
-  return { ...state, sendMessage, loadHistory, createChannel, editChannel, deleteChannel };
+  const joinVoice = useCallback((channelId: string) => {
+    gateway.current?.send({ type: "joinVoice", data: { channelId } });
+  }, []);
+
+  const leaveVoice = useCallback(() => {
+    gateway.current?.send({ type: "leaveVoice" } as any);
+  }, []);
+
+  const updateVoiceState = useCallback((micMuted: boolean, deafened: boolean) => {
+    gateway.current?.send({ type: "updateVoiceState", data: { micMuted, deafened } } as any);
+  }, []);
+
+  return { ...state, sendMessage, loadHistory, createChannel, editChannel, deleteChannel, joinVoice, leaveVoice, updateVoiceState };
 }

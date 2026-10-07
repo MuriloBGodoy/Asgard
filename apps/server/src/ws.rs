@@ -58,6 +58,7 @@ async fn handle_socket(socket: WebSocket, state: AppState) {
         user: user.clone(),
         realms: state.realms().await,
         online,
+        voice_states: state.voice_states().await,
     }));
 
     // 2. Repassa eventos globais para este cliente.
@@ -93,6 +94,15 @@ async fn handle_socket(socket: WebSocket, state: AppState) {
                 } else {
                     state.post_message(user.clone(), channel_id, content).await;
                 }
+            }
+            Ok(ClientEvent::JoinVoice(asgard_protocol::JoinVoice { channel_id })) => {
+                state.join_voice(user.clone(), channel_id).await;
+            }
+            Ok(ClientEvent::LeaveVoice) => {
+                state.leave_voice(&user).await;
+            }
+            Ok(ClientEvent::UpdateVoiceState(payload)) => {
+                state.update_voice_state(&user, payload.mic_muted, payload.deafened).await;
             }
             Ok(ClientEvent::Identify(_)) => send_error(&tx, "já identificado"),
             Err(err) => send_error(&tx, &format!("evento inválido: {err}")),

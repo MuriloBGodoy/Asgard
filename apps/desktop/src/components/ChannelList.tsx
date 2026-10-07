@@ -3,19 +3,23 @@ import type { Realm } from "../bindings/Realm";
 import type { User } from "../bindings/User";
 import type { ConnectionStatus } from "../hooks/useAsgard";
 import type { Channel } from "../bindings/Channel";
+import type { VoiceParticipant } from "../bindings/VoiceParticipant";
 
 interface Props {
   realm?: Realm;
-  activeId?: string;
-  onSelect: (id: string) => void;
+  activeTextId?: string;
+  activeVoiceId?: string;
+  onSelectText: (id: string) => void;
+  onSelectVoice: (id: string) => void;
   me?: User;
   status: ConnectionStatus;
+  voiceStates?: Record<string, VoiceParticipant[]>;
   onCreateChannel?: (realmId: string, name: string, kind: "text" | "voice") => Promise<void>;
   onEditChannel?: (realmId: string, channelId: string, name: string) => Promise<void>;
   onDeleteChannel?: (realmId: string, channelId: string) => Promise<void>;
 }
 
-export function ChannelList({ realm, activeId, onSelect, onCreateChannel, onEditChannel, onDeleteChannel }: Props) {
+export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, onSelectVoice, voiceStates, onCreateChannel, onEditChannel, onDeleteChannel }: Props) {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [channelName, setChannelName] = useState("");
   const [channelType, setChannelType] = useState<"text" | "voice">("text");
@@ -95,8 +99,8 @@ export function ChannelList({ realm, activeId, onSelect, onCreateChannel, onEdit
         {text.map((c) => (
           <div
             key={c.id}
-            className={`channel-item ${c.id === activeId ? "active" : ""}`}
-            onClick={() => onSelect(c.id)}
+            className={`channel-item ${c.id === activeTextId ? "active" : ""}`}
+            onClick={() => onSelectText(c.id)}
             onContextMenu={(e) => handleRightClick(e, c)}
           >
             # {c.name}
@@ -112,14 +116,42 @@ export function ChannelList({ realm, activeId, onSelect, onCreateChannel, onEdit
           )}
         </div>
         {voice.map((c) => (
-          <div 
-            key={c.id} 
-            className="channel-item" 
-            style={{ opacity: 0.7 }} 
-            title="Voz em breve"
-            onContextMenu={(e) => handleRightClick(e, c)}
-          >
-            {c.name}
+          <div key={c.id}>
+            <div 
+              className={`channel-item ${c.id === activeVoiceId ? "active" : ""}`}
+              onClick={() => onSelectVoice(c.id)}
+              onContextMenu={(e) => handleRightClick(e, c)}
+            >
+              🔊 {c.name}
+            </div>
+            {voiceStates?.[c.id]?.map((participant) => (
+              <div key={participant.user.id} style={{ display: "flex", alignItems: "center", padding: "4px 12px 4px 32px", fontSize: "12px", color: "var(--text-secondary)", gap: "8px" }}>
+                <div style={{ width: 24, height: 24, borderRadius: "50%", background: "var(--primary)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", flexShrink: 0 }}>
+                  {participant.user.username.substring(0, 2).toUpperCase()}
+                </div>
+                <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>{participant.user.username}</span>
+                
+                {/* Ícones de status de voz */}
+                <div style={{ display: "flex", gap: "4px" }}>
+                  {participant.micMuted && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2">
+                      <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                      <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                      <line x1="12" y1="19" x2="12" y2="23" />
+                      <line x1="8" y1="23" x2="16" y2="23" />
+                      <line x1="4" y1="4" x2="20" y2="20" />
+                    </svg>
+                  )}
+                  {participant.deafened && (
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2">
+                      <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+                      <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+                      <line x1="4" y1="4" x2="20" y2="20" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+            ))}
           </div>
         ))}
       </nav>

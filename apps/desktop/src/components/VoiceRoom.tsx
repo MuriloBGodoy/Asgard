@@ -1,0 +1,87 @@
+import { useEffect, useState } from "react";
+import {
+  LiveKitRoom,
+  RoomAudioRenderer,
+  useLocalParticipant,
+} from "@livekit/components-react";
+import "@livekit/components-styles";
+import type { Channel } from "../bindings/Channel";
+
+interface Props {
+  channel: Channel;
+  asgard: any;
+  serverUrl: string;
+  micMuted?: boolean;
+  audioMuted?: boolean;
+}
+
+// Sincroniza o estado de mute local com o LiveKit
+function LiveKitMuteSync({ micMuted }: { micMuted: boolean }) {
+  const { localParticipant } = useLocalParticipant();
+  useEffect(() => {
+    if (localParticipant) {
+      localParticipant.setMicrophoneEnabled(!micMuted);
+    }
+  }, [micMuted, localParticipant]);
+  return null;
+}
+
+export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioMuted = false }: Props) {
+  const [token, setToken] = useState<string | null>(null);
+  const [liveKitUrl, setLiveKitUrl] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    asgard.joinVoice(channel.id);
+    return () => asgard.leaveVoice();
+  }, [channel.id, asgard.joinVoice, asgard.leaveVoice]);
+
+  useEffect(() => {
+    // Busca o token do nosso backend Rust
+    // O serverUrl no config j tem o "http://ip:porta", s precisamos adicionar /api/livekit/token
+    const fetchToken = async () => {
+      try {
+        const httpUrl = serverUrl.replace("ws://", "http://").replace("wss://", "https://");
+        const res = await fetch(`${httpUrl}/api/livekit/token?room=${encodeURIComponent(channel.id)}&participant_name=${encodeURIComponent(asgard.me.username)}`);
+        if (!res.ok) {
+          throw new Error("Falha ao obter token de voz");
+        }
+        const data = await res.json();
+        setToken(data.token);
+        setLiveKitUrl(data.livekit_url);
+      } catch (err: any) {
+        setError(err.message);
+      }
+    };
+
+    fetchToken();
+  }, [channel.id, asgard.me, serverUrl]);
+
+  if (error) {
+    console.error("Erro na sala de voz:", error);
+    return null;
+  }
+
+  if (!token || !liveKitUrl) {
+    return null; // Connecting...
+  }
+
+  const savedMicId = localStorage.getItem("asgard_mic_device");
+  const audioOptions = !micMuted
+    ? (savedMicId && savedMicId !== "default" ? { deviceId: savedMicId } : true)
+    : false;
+
+  return (
+    <div style={{ display: "none" }}>
+      <LiveKitRoom
+        video={false}
+        audio={audioOptions}
+        token={token}
+        serverUrl={liveKitUrl}
+      >
+        <LiveKitMuteSync micMuted={micMuted} />
+        {!audioMuted && <RoomAudioRenderer />}
+      </LiveKitRoom>
+    </div>
+  );
+}

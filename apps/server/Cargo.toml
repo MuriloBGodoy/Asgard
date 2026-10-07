@@ -10,6 +10,7 @@ asgard-protocol.workspace = true
 axum = { version = "0.8.9", features = ["ws"] }
 dotenvy = "0.15.7"
 futures-util = "0.3.34"
+livekit-api = "0.8.2"
 serde.workspace = true
 serde_json.workspace = true
 tokio = { version = "1.53.2", features = ["full"] }

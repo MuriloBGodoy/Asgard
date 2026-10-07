@@ -91,9 +91,27 @@ pub struct Message {
 #[serde(tag = "type", content = "data", rename_all = "camelCase")]
 #[ts(export)]
 pub enum ClientEvent {
-    /// Deve ser o primeiro evento após conectar.
+    /// Deve ser o primeiro evento aps conectar.
     Identify(Identify),
     SendMessage(SendMessage),
+    JoinVoice(JoinVoice),
+    LeaveVoice,
+    UpdateVoiceState(UpdateVoiceState),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct UpdateVoiceState {
+    pub mic_muted: bool,
+    pub deafened: bool,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct JoinVoice {
+    pub channel_id: Uuid,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
@@ -110,6 +128,15 @@ pub struct SendMessage {
     pub content: String,
 }
 
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct VoiceParticipant {
+    pub user: User,
+    pub mic_muted: bool,
+    pub deafened: bool,
+}
+
 /// Eventos enviados pelo servidor.
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(tag = "type", content = "data", rename_all = "camelCase")]
@@ -119,15 +146,27 @@ pub enum ServerEvent {
     MessageCreated(Message),
     UserJoined(User),
     UserLeft(User),
+    VoicePresenceUpdated(VoicePresenceUpdated),
     Error(ErrorPayload),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct VoicePresenceUpdated {
+    pub channel_id: Uuid,
+    pub participants: Vec<VoiceParticipant>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
 #[ts(export)]
 pub struct Ready {
     pub user: User,
     pub realms: Vec<Realm>,
     pub online: Vec<User>,
+    /// Mapa de channel_id -> usuarios conectados com status de voz
+    pub voice_states: std::collections::HashMap<Uuid, Vec<VoiceParticipant>>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

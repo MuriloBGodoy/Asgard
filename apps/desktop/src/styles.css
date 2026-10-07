@@ -15,16 +15,32 @@
 
 * { box-sizing: border-box; }
 
-html, body, #root {
+html, body {
   margin: 0;
   padding: 0;
   height: 100vh;
   width: 100vw;
   overflow: hidden;
-  background: var(--bg-app);
+  background: transparent;
   color: var(--text-primary);
   font-family: var(--font-sans);
   font-size: 14px;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#root {
+  height: 100vh;
+  width: 100vw;
+  background: var(--bg-app);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+input, textarea, select {
+  user-select: auto;
+  -webkit-user-select: auto;
 }
 
 /* ---------- Minimal Layout ---------- */
@@ -105,11 +121,11 @@ html, body, #root {
 }
 
 .user-profile-bar {
-  padding: 16px;
+  padding: 12px 8px;
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
 }
 .user-avatar {
   width: 32px; height: 32px;
@@ -117,9 +133,9 @@ html, body, #root {
   border-radius: 50%;
   display: grid; place-items: center;
 }
-.user-info { flex: 1; }
-.user-name { font-weight: 500; }
-.user-status { font-size: 12px; color: var(--text-secondary); }
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-status { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------- Main Chat Area ---------- */
 .chat-area {
@@ -173,6 +189,8 @@ html, body, #root {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  user-select: text;
+  -webkit-user-select: text;
 }
 .message-header {
   display: flex;
@@ -234,7 +252,7 @@ html, body, #root {
 
 /* ---------- Login ---------- */
 .login-wrapper {
-  height: 100vh;
+  flex: 1;
   display: grid;
   place-items: center;
   background: var(--bg-app);
@@ -348,7 +366,7 @@ html, body, #root {
 
 .audio-controls {
   display: flex;
-  gap: 4px;
+  gap: 2px;
 }
 
 .control-btn {
