@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import type { Realm } from "../bindings/Realm";
 import type { User } from "../bindings/User";
 import type { ConnectionStatus } from "../hooks/useAsgard";
+import type { Channel } from "../bindings/Channel";
 
 interface Props {
   realm?: Realm;
@@ -8,46 +10,225 @@ interface Props {
   onSelect: (id: string) => void;
   me?: User;
   status: ConnectionStatus;
+  onCreateChannel?: (realmId: string, name: string, kind: "text" | "voice") => Promise<void>;
+  onEditChannel?: (realmId: string, channelId: string, name: string) => Promise<void>;
+  onDeleteChannel?: (realmId: string, channelId: string) => Promise<void>;
 }
 
-const STATUS_LABEL: Record<ConnectionStatus, string> = {
-  connecting: "Conectando…",
-  open: "Online",
-  closed: "Reconectando…",
-};
+export function ChannelList({ realm, activeId, onSelect, onCreateChannel, onEditChannel, onDeleteChannel }: Props) {
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [channelName, setChannelName] = useState("");
+  const [channelType, setChannelType] = useState<"text" | "voice">("text");
 
-export function ChannelList({ realm, activeId, onSelect, me, status }: Props) {
+  const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; channel: Channel | null }>({
+    visible: false, x: 0, y: 0, channel: null
+  });
+
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editName, setEditName] = useState("");
+
   const text = realm?.channels.filter((c) => c.kind === "text") ?? [];
   const voice = realm?.channels.filter((c) => c.kind === "voice") ?? [];
 
+  useEffect(() => {
+    function handleClick() {
+      if (contextMenu.visible) setContextMenu({ ...contextMenu, visible: false });
+    }
+    window.addEventListener("click", handleClick);
+    return () => window.removeEventListener("click", handleClick);
+  }, [contextMenu]);
+
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!channelName.trim() || !realm || !onCreateChannel) return;
+    try {
+      await onCreateChannel(realm.id, channelName, channelType);
+      setShowCreateModal(false);
+      setChannelName("");
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  async function handleEdit(e: React.FormEvent) {
+    e.preventDefault();
+    if (!editName.trim() || !realm || !onEditChannel || !contextMenu.channel) return;
+    try {
+      await onEditChannel(realm.id, contextMenu.channel.id, editName);
+      setShowEditModal(false);
+      setEditName("");
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  function handleRightClick(e: React.MouseEvent, channel: Channel) {
+    e.preventDefault();
+    setContextMenu({
+      visible: true,
+      x: e.clientX,
+      y: e.clientY,
+      channel,
+    });
+  }
+
+  async function handleDelete() {
+    if (!realm || !onDeleteChannel || !contextMenu.channel) return;
+    try {
+      await onDeleteChannel(realm.id, contextMenu.channel.id);
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
   return (
-    <aside className="channel-list">
-      <header>{realm?.name ?? "…"}</header>
-      <div className="channels">
-        <h3>Texto</h3>
+    <>
+      <nav className="channel-list-minimal" style={{ position: "relative" }}>
+        <div className="channel-group-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          Salas de Texto
+          {onCreateChannel && (
+            <button className="icon-button" onClick={() => { setChannelType("text"); setShowCreateModal(true); }} title="Criar Canal" style={{ cursor: "pointer", background: "none", border: "none", color: "inherit", opacity: 0.6 }}>
+              +
+            </button>
+          )}
+        </div>
         {text.map((c) => (
-          <button
+          <div
             key={c.id}
-            className={c.id === activeId ? "active" : ""}
+            className={`channel-item ${c.id === activeId ? "active" : ""}`}
             onClick={() => onSelect(c.id)}
+            onContextMenu={(e) => handleRightClick(e, c)}
           >
             # {c.name}
-          </button>
+          </div>
         ))}
-        <h3>Voz</h3>
-        {voice.map((c) => (
-          <button key={c.id} disabled title="Voz chega em breve">
-            🔊 {c.name}
-          </button>
-        ))}
-      </div>
-      <footer>
-        <span className={`dot ${status}`} />
-        <div>
-          <strong>{me?.username ?? "…"}</strong>
-          <small>{STATUS_LABEL[status]}</small>
+
+        <div className="channel-group-title" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 16 }}>
+          Voz
+          {onCreateChannel && (
+            <button className="icon-button" onClick={() => { setChannelType("voice"); setShowCreateModal(true); }} title="Criar Canal" style={{ cursor: "pointer", background: "none", border: "none", color: "inherit", opacity: 0.6 }}>
+              +
+            </button>
+          )}
         </div>
-      </footer>
-    </aside>
+        {voice.map((c) => (
+          <div 
+            key={c.id} 
+            className="channel-item" 
+            style={{ opacity: 0.7 }} 
+            title="Voz em breve"
+            onContextMenu={(e) => handleRightClick(e, c)}
+          >
+            {c.name}
+          </div>
+        ))}
+      </nav>
+
+      {/* Context Menu */}
+      {contextMenu.visible && contextMenu.channel && (
+        <div 
+          className="context-menu"
+          style={{
+            position: "fixed",
+            top: contextMenu.y,
+            left: contextMenu.x,
+            background: "var(--bg-panel)",
+            border: "1px solid var(--border)",
+            borderRadius: "var(--radius-md)",
+            padding: "8px 0",
+            minWidth: 160,
+            boxShadow: "0 4px 15px rgba(0,0,0,0.4)",
+            zIndex: 9999
+          }}
+        >
+          <div 
+            className="context-menu-item"
+            style={{ padding: "8px 16px", cursor: "pointer", fontSize: "13px", color: "var(--text-primary)" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditName(contextMenu.channel!.name);
+              setShowEditModal(true);
+              setContextMenu({ ...contextMenu, visible: false });
+            }}
+          >
+            Editar Canal
+          </div>
+          <div 
+            className="context-menu-item"
+            style={{ padding: "8px 16px", cursor: "pointer", fontSize: "13px", color: "var(--danger)" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+              setContextMenu({ ...contextMenu, visible: false });
+            }}
+          >
+            Excluir Canal
+          </div>
+        </div>
+      )}
+
+      {/* Create Modal */}
+      {showCreateModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2 style={{ marginTop: 0, fontSize: "16px", color: "var(--text)" }}>Criar Canal</h2>
+            <form onSubmit={handleCreate}>
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: "block", marginBottom: 8, fontSize: "12px", color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: 600 }}>Tipo de Canal</label>
+                <select
+                  value={channelType}
+                  onChange={(e) => setChannelType(e.target.value as "text" | "voice")}
+                  style={{ width: "100%", padding: "8px 12px", background: "var(--bg-tertiary)", border: "1px solid var(--border)", color: "var(--text)", borderRadius: 4 }}
+                >
+                  <option value="text">Texto</option>
+                  <option value="voice">Voz</option>
+                </select>
+              </div>
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ display: "block", marginBottom: 8, fontSize: "12px", color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: 600 }}>Nome do Canal</label>
+                <input
+                  type="text"
+                  value={channelName}
+                  onChange={(e) => setChannelName(e.target.value)}
+                  placeholder="novo-canal"
+                  style={{ width: "100%", padding: "8px 12px", background: "var(--bg-tertiary)", border: "1px solid var(--border)", color: "var(--text)", borderRadius: 4 }}
+                  autoFocus
+                />
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
+                <button type="button" onClick={() => setShowCreateModal(false)} style={{ background: "none", border: "none", color: "var(--text)", cursor: "pointer", padding: "8px 16px" }}>Cancelar</button>
+                <button type="submit" style={{ background: "var(--primary)", border: "none", color: "#fff", cursor: "pointer", padding: "8px 16px", borderRadius: 4, fontWeight: 500 }}>Criar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h2 style={{ marginTop: 0, fontSize: "16px", color: "var(--text)" }}>Editar Canal</h2>
+            <form onSubmit={handleEdit}>
+              <div style={{ marginBottom: 24 }}>
+                <label style={{ display: "block", marginBottom: 8, fontSize: "12px", color: "var(--text-secondary)", textTransform: "uppercase", fontWeight: 600 }}>Nome do Canal</label>
+                <input
+                  type="text"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="nome-do-canal"
+                  style={{ width: "100%", padding: "8px 12px", background: "var(--bg-tertiary)", border: "1px solid var(--border)", color: "var(--text)", borderRadius: 4 }}
+                  autoFocus
+                />
+              </div>
+              <div style={{ display: "flex", justifyContent: "flex-end", gap: 12 }}>
+                <button type="button" onClick={() => setShowEditModal(false)} style={{ background: "none", border: "none", color: "var(--text)", cursor: "pointer", padding: "8px 16px" }}>Cancelar</button>
+                <button type="submit" style={{ background: "var(--primary)", border: "none", color: "#fff", cursor: "pointer", padding: "8px 16px", borderRadius: 4, fontWeight: 500 }}>Salvar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </>
   );
 }

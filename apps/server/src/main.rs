@@ -29,6 +29,8 @@ async fn main() -> anyhow::Result<()> {
     let app = Router::new()
         .route("/health", get(|| async { "ok" }))
         .route("/api/realms", get(routes::list_realms))
+        .route("/api/realms/{id}/channels", axum::routing::post(routes::create_channel))
+        .route("/api/realms/{realm_id}/channels/{channel_id}", axum::routing::delete(routes::delete_channel).put(routes::edit_channel))
         .route("/api/channels/{id}/messages", get(routes::channel_messages))
         .route("/ws", get(ws::handler))
         // TODO: restringir origens antes de ir para produção.

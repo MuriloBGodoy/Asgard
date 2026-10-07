@@ -5,7 +5,6 @@ interface Props {
   onSubmit: (username: string) => void;
 }
 
-/** Login provisório: só um nome. Autenticação de verdade vem depois. */
 export function Login({ version, onSubmit }: Props) {
   const [name, setName] = useState("");
   const trimmed = name.trim();
@@ -17,21 +16,28 @@ export function Login({ version, onSubmit }: Props) {
   }
 
   return (
-    <div className="login">
-      <form className="login-card" onSubmit={submit}>
-        <h1>ASGARD</h1>
-        <p>Games e trabalho, no mesmo reino.</p>
-        <input
-          autoFocus
-          placeholder="Seu nome"
-          value={name}
-          maxLength={32}
-          onChange={(e) => setName(e.target.value)}
-        />
-        <button type="submit" disabled={!valid}>
-          Entrar
+    <div className="login-wrapper">
+      <form className="login-box" onSubmit={submit}>
+        <div className="login-brand">ASGARD</div>
+        <div className="login-subtitle">Workspace & Community</div>
+
+        <div className="login-form-group">
+          <label htmlFor="username">Username</label>
+          <input
+            id="username"
+            autoFocus
+            placeholder="Enter your name"
+            value={name}
+            maxLength={32}
+            onChange={(e) => setName(e.target.value)}
+          />
+        </div>
+
+        <button type="submit" className="login-button" disabled={!valid}>
+          Continue
         </button>
-        <small>v{version}</small>
+
+        <div className="login-footer">v{version}</div>
       </form>
     </div>
   );

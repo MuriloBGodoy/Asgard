@@ -54,6 +54,38 @@ impl AppState {
             .any(|c| c.id == channel_id && c.kind == ChannelKind::Text)
     }
 
+    pub async fn create_channel(&self, realm_id: Uuid, name: String, kind: ChannelKind) -> Option<Channel> {
+        let mut realms = self.inner.realms.write().await;
+        let realm = realms.iter_mut().find(|r| r.id == realm_id)?;
+        let channel = Channel {
+            id: Uuid::new_v4(),
+            realm_id,
+            name,
+            kind,
+        };
+        realm.channels.push(channel.clone());
+        Some(channel)
+    }
+
+    pub async fn edit_channel(&self, realm_id: Uuid, channel_id: Uuid, name: String) -> Option<Channel> {
+        let mut realms = self.inner.realms.write().await;
+        let realm = realms.iter_mut().find(|r| r.id == realm_id)?;
+        let channel = realm.channels.iter_mut().find(|c| c.id == channel_id)?;
+        channel.name = name;
+        Some(channel.clone())
+    }
+
+    pub async fn delete_channel(&self, realm_id: Uuid, channel_id: Uuid) -> bool {
+        let mut realms = self.inner.realms.write().await;
+        let realm = match realms.iter_mut().find(|r| r.id == realm_id) {
+            Some(r) => r,
+            None => return false,
+        };
+        let len_before = realm.channels.len();
+        realm.channels.retain(|c| c.id != channel_id);
+        realm.channels.len() < len_before
+    }
+
     pub async fn messages(&self, channel_id: Uuid) -> Vec<Message> {
         self.inner
             .messages

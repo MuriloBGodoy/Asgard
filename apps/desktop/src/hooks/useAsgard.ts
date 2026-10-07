@@ -20,7 +20,10 @@ interface State {
 type Action =
   | { type: "status"; status: ConnectionStatus }
   | { type: "server"; event: ServerEvent }
-  | { type: "history"; channelId: string; messages: Message[] };
+  | { type: "history"; channelId: string; messages: Message[] }
+  | { type: "channelCreated"; realmId: string; channel: any }
+  | { type: "channelEdited"; realmId: string; channelId: string; channel: any }
+  | { type: "channelDeleted"; realmId: string; channelId: string };
 
 const initialState: State = { status: "connecting", realms: [], online: {}, messages: {} };
 
@@ -74,6 +77,31 @@ function reducer(state: State, action: Action): State {
           [action.channelId]: mergeMessages(state.messages[action.channelId], action.messages),
         },
       };
+    case "channelCreated":
+      return {
+        ...state,
+        realms: state.realms.map((r) =>
+          r.id === action.realmId ? { ...r, channels: [...r.channels, action.channel] } : r
+        ),
+      };
+    case "channelEdited":
+      return {
+        ...state,
+        realms: state.realms.map((r) =>
+          r.id === action.realmId
+            ? { ...r, channels: r.channels.map((c) => (c.id === action.channelId ? action.channel : c)) }
+            : r
+        ),
+      };
+    case "channelDeleted":
+      return {
+        ...state,
+        realms: state.realms.map((r) =>
+          r.id === action.realmId
+            ? { ...r, channels: r.channels.filter((c) => c.id !== action.channelId) }
+            : r
+        ),
+      };
     case "server":
       return reduceServerEvent(state, action.event);
   }
@@ -110,5 +138,53 @@ export function useAsgard(serverUrl: string, username: string) {
     [serverUrl],
   );
 
-  return { ...state, sendMessage, loadHistory };
+  const createChannel = useCallback(
+    async (realmId: string, name: string, kind: "text" | "voice") => {
+      const res = await fetch(`${serverUrl}/api/realms/${realmId}/channels`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, kind }),
+      });
+      if (res.ok) {
+        const channel = await res.json();
+        dispatch({ type: "channelCreated", realmId, channel });
+        return channel;
+      }
+      throw new Error("Failed to create channel");
+    },
+    [serverUrl],
+  );
+
+  const editChannel = useCallback(
+    async (realmId: string, channelId: string, name: string) => {
+      const res = await fetch(`${serverUrl}/api/realms/${realmId}/channels/${channelId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name }),
+      });
+      if (res.ok) {
+        const channel = await res.json();
+        dispatch({ type: "channelEdited", realmId, channelId, channel });
+        return channel;
+      }
+      throw new Error("Failed to edit channel");
+    },
+    [serverUrl],
+  );
+
+  const deleteChannel = useCallback(
+    async (realmId: string, channelId: string) => {
+      const res = await fetch(`${serverUrl}/api/realms/${realmId}/channels/${channelId}`, {
+        method: "DELETE",
+      });
+      if (res.ok) {
+        dispatch({ type: "channelDeleted", realmId, channelId });
+        return;
+      }
+      throw new Error("Failed to delete channel");
+    },
+    [serverUrl],
+  );
+
+  return { ...state, sendMessage, loadHistory, createChannel, editChannel, deleteChannel };
 }

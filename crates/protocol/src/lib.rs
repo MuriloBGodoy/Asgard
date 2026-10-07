@@ -57,6 +57,21 @@ pub enum ChannelKind {
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(export)]
+pub struct CreateChannelPayload {
+    pub name: String,
+    pub kind: ChannelKind,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct EditChannelPayload {
+    pub name: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
 pub struct Message {
     pub id: Uuid,
     pub channel_id: Uuid,

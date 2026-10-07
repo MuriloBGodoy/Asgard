@@ -6,3 +6,6 @@ target/
 *.log
 .DS_Store
 apps/desktop/src-tauri/gen/schemas
+
+# Anotações locais do Schwenke
+*_swk.md

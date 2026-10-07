@@ -7,18 +7,18 @@ interface Props {
 }
 
 export function RealmBar({ realms, activeId, onSelect }: Props) {
+  const activeRealm = realms.find((r) => r.id === activeId) ?? realms[0];
+  if (!activeRealm) return null;
+
   return (
-    <nav className="realm-bar">
-      {realms.map((realm) => (
-        <button
-          key={realm.id}
-          title={`${realm.name} · ${realm.kind === "gaming" ? "Games" : "Trabalho"}`}
-          className={`realm-icon ${realm.kind} ${realm.id === activeId ? "active" : ""}`}
-          onClick={() => onSelect(realm.id)}
-        >
-          {realm.name.slice(0, 2).toUpperCase()}
-        </button>
-      ))}
-    </nav>
+    <div className="realm-selector" onClick={() => onSelect(activeRealm.id)}>
+      <div className="realm-icon-mock">
+        {activeRealm.name.substring(0, 1).toUpperCase()}
+      </div>
+      <div className="realm-info">
+        <div className="realm-name">{activeRealm.name}</div>
+      </div>
+      <div className="realm-chevron">▼</div>
+    </div>
   );
 }
