@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
+import { Users } from "lucide-react";
 import type { Channel } from "../bindings/Channel";
 import type { Message } from "../bindings/Message";
 import type { User } from "../bindings/User";
@@ -14,9 +15,18 @@ interface Props {
 
 const timeFormat = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
+// Função para gerar um status mockado, mantendo a consistência pelo ID do usuário
+function getMockStatus(userId: string) {
+  const sum = userId.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+  const m = sum % 3;
+  if (m === 0) return { label: "Disponível", color: "#43b581", type: "online" };
+  if (m === 1) return { label: "Ocupado", color: "#f04747", type: "busy" };
+  return { label: "Ausente", color: "#faa61a", type: "away" };
+}
+
 export function ChatView({ channel, messages, error, online, onSend }: Props) {
   const [draft, setDraft] = useState("");
-  const [showMembers, setShowMembers] = useState(false);
+  const [showMembers, setShowMembers] = useState(true);
   
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -41,92 +51,179 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
     setDraft("");
   }
 
-  if (!channel) return <main className="chat-area"><div style={{padding: 24, color: "var(--text-secondary)"}}>Selecione um canal</div></main>;
+  if (!channel) return <div style={{padding: 24, color: "var(--text-secondary)"}}>Selecione um canal</div>;
+
+  // Categorizar usuários para exibir na barra lateral (Status mockado)
+  const availableOrBusy: (User & { st: ReturnType<typeof getMockStatus> })[] = [];
+  const away: (User & { st: ReturnType<typeof getMockStatus> })[] = [];
+
+  online.forEach(u => {
+    const st = getMockStatus(u.id);
+    if (st.type === "away") {
+      away.push({ ...u, st });
+    } else {
+      availableOrBusy.push({ ...u, st });
+    }
+  });
+
+  // Ordenar usuários (Disponível primeiro, Ocupado depois) - opcional
+  availableOrBusy.sort((a, b) => {
+    if (a.st.type === b.st.type) return a.username.localeCompare(b.username);
+    return a.st.type === "online" ? -1 : 1;
+  });
 
   return (
-    <>
-      <header className="chat-header">
-        <div className="chat-title">{channel.name}</div>
-        <button 
-          className="members-toggle"
-          onClick={() => setShowMembers(!showMembers)}
-        >
-          Membros ({online.length})
-        </button>
-      </header>
-
-      {showMembers && (
-        <div className="members-drawer">
-          <div className="channel-group-title" style={{ margin: "0 0 12px 0" }}>Online — {online.length}</div>
-          {online.map(user => (
-            <div key={user.id} className="member-mock">
-              <span className="user-avatar" style={{width: 24, height: 24}}>
-                {user.username.substring(0, 2).toUpperCase()}
-              </span> 
-              {user.username}
-            </div>
-          ))}
-        </div>
-      )}
-
-      <div 
-        ref={parentRef}
-        className="messages-list" 
-        style={{ overflowY: "auto", flex: 1, padding: 0 }}
-      >
-        {messages.length === 0 && <p style={{color: "var(--text-secondary)", padding: 24}}>Nenhuma mensagem ainda.</p>}
-        
-        {messages.length > 0 && (
-          <div
+    <div style={{ display: "flex", flex: 1, overflow: "hidden", minWidth: 0, width: "100%" }}>
+      {/* Coluna principal do Chat */}
+      <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
+        <header className="chat-header">
+          <div className="chat-title">{channel.name}</div>
+          <button 
+            className="members-toggle-btn"
+            onClick={() => setShowMembers(!showMembers)}
+            title="Alternar Lista de Membros"
             style={{
-              height: `${rowVirtualizer.getTotalSize()}px`,
-              width: "100%",
-              position: "relative",
+              background: showMembers ? "var(--bg-hover)" : "var(--bg-panel)",
+              border: "1px solid var(--border)",
+              borderRadius: "var(--radius-md)",
+              padding: "6px 10px",
+              display: "grid",
+              placeItems: "center",
+              color: showMembers ? "var(--text-primary)" : "var(--text-secondary)",
+              cursor: "pointer",
+              transition: "all 0.2s"
             }}
           >
-            {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-              const m = messages[virtualRow.index];
-              return (
-                <div
-                  key={virtualRow.key}
-                  data-index={virtualRow.index}
-                  ref={rowVirtualizer.measureElement}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    width: "100%",
-                    transform: `translateY(${virtualRow.start}px)`,
-                    padding: "0 24px",
-                  }}
-                >
-                  <div className="message-item" style={{ padding: "12px 0" }}>
-                    <div className="message-header">
-                      <span className="message-author">{m.author.username}</span>
-                      <span className="message-time">{timeFormat.format(m.sentAt)}</span>
-                    </div>
-                    <div className="message-content">
-                      {m.content}
+            <Users size={18} />
+          </button>
+        </header>
+
+        <div 
+          ref={parentRef}
+          className="messages-list" 
+          style={{ overflowY: "auto", flex: 1, padding: 0 }}
+        >
+          {messages.length === 0 && <p style={{color: "var(--text-secondary)", padding: 24}}>Nenhuma mensagem ainda.</p>}
+          
+          {messages.length > 0 && (
+            <div
+              style={{
+                height: `${rowVirtualizer.getTotalSize()}px`,
+                width: "100%",
+                position: "relative",
+              }}
+            >
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const m = messages[virtualRow.index];
+                return (
+                  <div
+                    key={virtualRow.key}
+                    data-index={virtualRow.index}
+                    ref={rowVirtualizer.measureElement}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      width: "100%",
+                      transform: `translateY(${virtualRow.start}px)`,
+                      padding: "0 24px",
+                    }}
+                  >
+                    <div className="message-item" style={{ padding: "12px 0" }}>
+                      <div className="message-header">
+                        <span className="message-author">{m.author.username}</span>
+                        <span className="message-time">{timeFormat.format(m.sentAt)}</span>
+                      </div>
+                      <div className="message-content">
+                        {m.content}
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        {error && <div style={{margin: "0 24px 16px", padding: 12, background: "rgba(224, 94, 94, 0.15)", color: "var(--danger)", borderRadius: 8}}>{error}</div>}
+
+        <form className="chat-input-container" onSubmit={submit}>
+          <input
+            className="chat-input"
+            placeholder={`Conversar em ${channel.name}`}
+            value={draft}
+            maxLength={2000}
+            onChange={(e) => setDraft(e.target.value)}
+          />
+        </form>
       </div>
 
-      {error && <div style={{margin: "0 24px 16px", padding: 12, background: "rgba(224, 94, 94, 0.15)", color: "var(--danger)", borderRadius: 8}}>{error}</div>}
+      {/* Painel lateral de Membros */}
+      {showMembers && (
+        <aside className="members-sidebar" style={{ 
+          width: 260, 
+          background: "var(--bg-panel)", 
+          borderLeft: "1px solid var(--border)", 
+          display: "flex", 
+          flexDirection: "column", 
+          overflowY: "auto",
+          padding: "16px 8px"
+        }}>
+          {availableOrBusy.length > 0 && (
+            <>
+              <div className="channel-group-title">Disponíveis — {availableOrBusy.length}</div>
+              {availableOrBusy.map(user => (
+                <div key={user.id} className="member-item">
+                  <div style={{ position: "relative", width: 32, height: 32 }}>
+                    <span className="user-avatar" style={{width: "100%", height: "100%"}}>
+                      {user.username.substring(0, 2).toUpperCase()}
+                    </span>
+                    <span style={{
+                      position: "absolute",
+                      bottom: -2, right: -2,
+                      width: 12, height: 12,
+                      borderRadius: "50%",
+                      background: user.st.color,
+                      border: "2px solid var(--bg-panel)"
+                    }} title={user.st.label} />
+                  </div>
+                  <div className="member-info">
+                    <span className="member-name">{user.username}</span>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
 
-      <form className="chat-input-container" onSubmit={submit}>
-        <input
-          className="chat-input"
-          placeholder={`Conversar em ${channel.name}`}
-          value={draft}
-          maxLength={2000}
-          onChange={(e) => setDraft(e.target.value)}
-        />
-      </form>
-    </>
+          {away.length > 0 && (
+            <>
+              <div className="channel-group-title" style={availableOrBusy.length > 0 ? { marginTop: 16 } : {}}>
+                Ausentes — {away.length}
+              </div>
+              {away.map(user => (
+                <div key={user.id} className="member-item" style={{ opacity: 0.5 }}>
+                  <div style={{ position: "relative", width: 32, height: 32 }}>
+                    <span className="user-avatar" style={{width: "100%", height: "100%"}}>
+                      {user.username.substring(0, 2).toUpperCase()}
+                    </span>
+                    <span style={{
+                      position: "absolute",
+                      bottom: -2, right: -2,
+                      width: 12, height: 12,
+                      borderRadius: "50%",
+                      background: user.st.color,
+                      border: "2px solid var(--bg-panel)"
+                    }} title={user.st.label} />
+                  </div>
+                  <div className="member-info">
+                    <span className="member-name">{user.username}</span>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+        </aside>
+      )}
+    </div>
   );
 }
