@@ -46,6 +46,7 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
   // Categorizar usuários para exibir na barra lateral (Status real)
   const availableOrBusy: (User & { st: { label: string, color: string } })[] = [];
   const away: (User & { st: { label: string, color: string } })[] = [];
+  const offline: (User & { st: { label: string, color: string } })[] = [];
 
   const statusMap = {
     online: { label: "Disponível", color: "#43b581" },
@@ -55,10 +56,11 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
   };
 
   online.forEach(u => {
-    if (u.status === "invisible") return; // Ignora invisíveis
     const st = statusMap[u.status] || statusMap.online;
 
-    if (u.status === "away") {
+    if (u.status === "invisible") {
+      offline.push({ ...u, st });
+    } else if (u.status === "away") {
       away.push({ ...u, st });
     } else {
       availableOrBusy.push({ ...u, st });
@@ -218,6 +220,34 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
                       background: user.st.color,
                       border: "2px solid var(--bg-panel)"
                     }} title={user.st.label} />
+                  </div>
+                  <div className="member-info">
+                    <span className="member-name">{user.username}</span>
+                  </div>
+                </div>
+              ))}
+            </>
+          )}
+
+          {offline.length > 0 && (
+            <>
+              <div className="channel-group-title" style={(availableOrBusy.length > 0 || away.length > 0) ? { marginTop: 16 } : {}}>
+                Offline — {offline.length}
+              </div>
+              {offline.map(user => (
+                <div key={user.id} className="member-item" style={{ opacity: 0.5 }}>
+                  <div style={{ position: "relative", width: 32, height: 32 }}>
+                    <span className="user-avatar" style={{width: "100%", height: "100%"}}>
+                      {user.username.substring(0, 2).toUpperCase()}
+                    </span>
+                    <span style={{
+                      position: "absolute",
+                      bottom: -2, right: -2,
+                      width: 12, height: 12,
+                      borderRadius: "50%",
+                      background: user.st.color,
+                      border: "2px solid var(--bg-panel)"
+                    }} title="Offline" />
                   </div>
                   <div className="member-info">
                     <span className="member-name">{user.username}</span>
