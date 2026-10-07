@@ -14,15 +14,6 @@ interface Props {
 
 const timeFormat = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "2-digit" });
 
-// Função para gerar um status mockado, mantendo a consistência pelo ID do usuário
-function getMockStatus(userId: string) {
-  const sum = userId.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-  const m = sum % 3;
-  if (m === 0) return { label: "Disponível", color: "#43b581", type: "online" };
-  if (m === 1) return { label: "Ocupado", color: "#f04747", type: "busy" };
-  return { label: "Ausente", color: "#faa61a", type: "away" };
-}
-
 export function ChatView({ channel, messages, error, online, onSend }: Props) {
   const [draft, setDraft] = useState("");
   const [showMembers, setShowMembers] = useState(true);
@@ -52,13 +43,22 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
 
   if (!channel) return <div style={{padding: 24, color: "var(--text-secondary)"}}>Selecione um canal</div>;
 
-  // Categorizar usuários para exibir na barra lateral (Status mockado)
-  const availableOrBusy: (User & { st: ReturnType<typeof getMockStatus> })[] = [];
-  const away: (User & { st: ReturnType<typeof getMockStatus> })[] = [];
+  // Categorizar usuários para exibir na barra lateral (Status real)
+  const availableOrBusy: (User & { st: { label: string, color: string } })[] = [];
+  const away: (User & { st: { label: string, color: string } })[] = [];
+
+  const statusMap = {
+    online: { label: "Disponível", color: "#43b581" },
+    away: { label: "Ausente", color: "#faa61a" },
+    busy: { label: "Ocupado", color: "#f04747" },
+    invisible: { label: "Invisível", color: "#747f8d" },
+  };
 
   online.forEach(u => {
-    const st = getMockStatus(u.id);
-    if (st.type === "away") {
+    if (u.status === "invisible") return; // Ignora invisíveis
+    const st = statusMap[u.status] || statusMap.online;
+
+    if (u.status === "away") {
       away.push({ ...u, st });
     } else {
       availableOrBusy.push({ ...u, st });
@@ -67,8 +67,8 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
 
   // Ordenar usuários (Disponível primeiro, Ocupado depois) - opcional
   availableOrBusy.sort((a, b) => {
-    if (a.st.type === b.st.type) return a.username.localeCompare(b.username);
-    return a.st.type === "online" ? -1 : 1;
+    if (a.status === b.status) return a.username.localeCompare(b.username);
+    return a.status === "online" ? -1 : 1;
   });
 
   return (

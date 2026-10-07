@@ -202,6 +202,14 @@ impl AppState {
         self.broadcast(ServerEvent::UserLeft(user.clone()));
     }
 
+    pub async fn update_user_status(&self, user: &User) {
+        let mut online = self.inner.online.write().await;
+        if let Some(u) = online.get_mut(&user.id) {
+            u.status = user.status;
+            self.broadcast(ServerEvent::UserUpdated(u.clone()));
+        }
+    }
+
     pub fn subscribe(&self) -> broadcast::Receiver<ServerEvent> {
         self.inner.events.subscribe()
     }

@@ -39,6 +39,48 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
   const [micMuted, setMicMuted] = useState(false);
   const [audioMuted, setAudioMuted] = useState(false);
 
+  const [manualStatus, setManualStatus] = useState<"online" | "away" | "busy" | "invisible">("online");
+  const [isIdle, setIsIdle] = useState(false);
+
+  // Auto-away detector
+  useEffect(() => {
+    let idleTimer: ReturnType<typeof setTimeout>;
+    function resetIdle() {
+      setIsIdle(false);
+      clearTimeout(idleTimer);
+      // Set to away after 5 minutes of inactivity (300_000 ms)
+      idleTimer = setTimeout(() => setIsIdle(true), 300_000); 
+    }
+
+    // Add event listeners for activity
+    window.addEventListener("mousemove", resetIdle);
+    window.addEventListener("keydown", resetIdle);
+    window.addEventListener("click", resetIdle);
+    window.addEventListener("scroll", resetIdle);
+
+    resetIdle(); // Start timer initially
+
+    return () => {
+      clearTimeout(idleTimer);
+      window.removeEventListener("mousemove", resetIdle);
+      window.removeEventListener("keydown", resetIdle);
+      window.removeEventListener("click", resetIdle);
+      window.removeEventListener("scroll", resetIdle);
+    };
+  }, []);
+
+  // Update backend status when manual status or idle state changes
+  useEffect(() => {
+    if (asgard.status === "open") {
+      if (manualStatus === "invisible" || manualStatus === "away") {
+        asgard.updateUserStatus(manualStatus);
+      } else {
+        asgard.updateUserStatus(isIdle ? "away" : manualStatus);
+      }
+    }
+  }, [manualStatus, isIdle, asgard.status, asgard.updateUserStatus]);
+
+
   // Enviar para o servidor sempre que mudar
   useEffect(() => {
     if (activeVoiceId) {
@@ -52,6 +94,11 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
   const activeVoiceChannel = activeVoiceId 
     ? activeRealm.channels.find(c => c.id === activeVoiceId)
     : null;
+
+  // The effectively displayed status in the UserProfileBar
+  const effectiveStatus = (manualStatus === "invisible" || manualStatus === "away") 
+    ? manualStatus 
+    : (isIdle ? "away" : manualStatus);
 
   return (
     <div className="layout-minimal">
@@ -88,6 +135,8 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
               setMicMuted(false); // Undeafening also unmutes mic
             }
           }}
+          currentStatus={effectiveStatus}
+          onChangeStatus={setManualStatus}
         />
       </aside>
 

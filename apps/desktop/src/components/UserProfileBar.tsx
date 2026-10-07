@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import type { UserStatus } from "../bindings/UserStatus";
 
 interface Props {
   username: string;
@@ -9,6 +10,8 @@ interface Props {
   audioMuted?: boolean;
   onToggleMic?: () => void;
   onToggleAudio?: () => void;
+  currentStatus: UserStatus;
+  onChangeStatus: (status: UserStatus) => void;
 }
 
 export function UserProfileBar({ 
@@ -18,19 +21,20 @@ export function UserProfileBar({
   micMuted = false,
   audioMuted = false,
   onToggleMic,
-  onToggleAudio
+  onToggleAudio,
+  currentStatus,
+  onChangeStatus
 }: Props) {
   const navigate = useNavigate();
-  const [status, setStatus] = useState("Disponível");
   const [showStatusMenu, setShowStatusMenu] = useState(false);
 
-  const statusOptions = [
-    { id: "Disponível", color: "#43b581" },
-    { id: "Ausente", color: "#faa61a" },
-    { id: "Ocupado", color: "#f04747" },
-    { id: "Invisível", color: "#747f8d" },
+  const statusOptions: { id: UserStatus; label: string; color: string }[] = [
+    { id: "online", label: "Disponível", color: "#43b581" },
+    { id: "away", label: "Ausente", color: "#faa61a" },
+    { id: "busy", label: "Ocupado", color: "#f04747" },
+    { id: "invisible", label: "Invisível", color: "#747f8d" },
   ];
-  const currentStatusObj = statusOptions.find(s => s.id === status) || statusOptions[0];
+  const currentStatusObj = statusOptions.find(s => s.id === currentStatus) || statusOptions[0];
 
   function toggleAudio() {
     if (onToggleAudio) onToggleAudio();
@@ -62,7 +66,7 @@ export function UserProfileBar({
           style={{ display: "flex", alignItems: "center", gap: 4 }}
         >
           <div style={{ width: 8, height: 8, borderRadius: "50%", backgroundColor: currentStatusObj.color, flexShrink: 0 }} />
-          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{status}</span>
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{currentStatusObj.label}</span>
         </div>
 
         {/* Menu Pop-up de Status */}
@@ -73,12 +77,12 @@ export function UserProfileBar({
                 key={opt.id} 
                 className="status-option"
                 onClick={() => {
-                  setStatus(opt.id);
+                  onChangeStatus(opt.id);
                   setShowStatusMenu(false);
                 }}
               >
                 <div style={{ width: 10, height: 10, borderRadius: "50%", backgroundColor: opt.color, flexShrink: 0 }} />
-                <span>{opt.id}</span>
+                <span>{opt.label}</span>
               </div>
             ))}
           </div>

@@ -28,7 +28,7 @@ async fn handle_socket(socket: WebSocket, state: AppState) {
     let writer = tokio::spawn(write_loop(sink, rx));
 
     // 1. Handshake: o primeiro evento precisa ser `identify`.
-    let user = loop {
+    let mut user = loop {
         match next_event(&mut stream).await {
             Some(Ok(ClientEvent::Identify(Identify { username }))) => {
                 let username = username.trim().to_owned();
@@ -36,6 +36,7 @@ async fn handle_socket(socket: WebSocket, state: AppState) {
                     break User {
                         id: Uuid::new_v4(),
                         username,
+                        status: asgard_protocol::UserStatus::Online,
                     };
                 }
                 send_error(&tx, "username deve ter entre 2 e 32 caracteres");
@@ -103,6 +104,10 @@ async fn handle_socket(socket: WebSocket, state: AppState) {
             }
             Ok(ClientEvent::UpdateVoiceState(payload)) => {
                 state.update_voice_state(&user, payload.mic_muted, payload.deafened).await;
+            }
+            Ok(ClientEvent::UpdateUserStatus(payload)) => {
+                user.status = payload.status;
+                state.update_user_status(&user).await;
             }
             Ok(ClientEvent::Identify(_)) => send_error(&tx, "já identificado"),
             Err(err) => send_error(&tx, &format!("evento inválido: {err}")),

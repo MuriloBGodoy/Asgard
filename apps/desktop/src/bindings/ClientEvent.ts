@@ -2,9 +2,10 @@
 import type { Identify } from "./Identify";
 import type { JoinVoice } from "./JoinVoice";
 import type { SendMessage } from "./SendMessage";
+import type { UpdateUserStatus } from "./UpdateUserStatus";
 import type { UpdateVoiceState } from "./UpdateVoiceState";
 
 /**
  * Eventos enviados pelo cliente.
  */
-export type ClientEvent = { "type": "identify", "data": Identify } | { "type": "sendMessage", "data": SendMessage } | { "type": "joinVoice", "data": JoinVoice } | { "type": "leaveVoice" } | { "type": "updateVoiceState", "data": UpdateVoiceState };
+export type ClientEvent = { "type": "identify", "data": Identify } | { "type": "sendMessage", "data": SendMessage } | { "type": "joinVoice", "data": JoinVoice } | { "type": "leaveVoice" } | { "type": "updateVoiceState", "data": UpdateVoiceState } | { "type": "updateUserStatus", "data": UpdateUserStatus };

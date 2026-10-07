@@ -72,6 +72,11 @@ function reduceServerEvent(state: State, event: ServerEvent): State {
       delete online[event.data.id];
       return { ...state, online };
     }
+    case "userUpdated":
+      if (state.me?.id === event.data.id) {
+        return { ...state, me: event.data, online: { ...state.online, [event.data.id]: event.data } };
+      }
+      return { ...state, online: { ...state.online, [event.data.id]: event.data } };
     case "error":
       return { ...state, lastError: event.data.message };
   }
@@ -210,5 +215,9 @@ export function useAsgard(serverUrl: string, username: string) {
     gateway.current?.send({ type: "updateVoiceState", data: { micMuted, deafened } } as any);
   }, []);
 
-  return { ...state, sendMessage, loadHistory, createChannel, editChannel, deleteChannel, joinVoice, leaveVoice, updateVoiceState };
+  const updateUserStatus = useCallback((status: "online" | "away" | "busy" | "invisible") => {
+    gateway.current?.send({ type: "updateUserStatus", data: { status } } as any);
+  }, []);
+
+  return { ...state, sendMessage, loadHistory, createChannel, editChannel, deleteChannel, joinVoice, leaveVoice, updateVoiceState, updateUserStatus };
 }

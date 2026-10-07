@@ -11,11 +11,22 @@ use uuid::Uuid;
 pub const MAX_MESSAGE_LEN: usize = 2000;
 pub const USERNAME_LEN: std::ops::RangeInclusive<usize> = 2..=32;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub enum UserStatus {
+    Online,
+    Away,
+    Busy,
+    Invisible,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
 #[ts(export)]
 pub struct User {
     pub id: Uuid,
     pub username: String,
+    pub status: UserStatus,
 }
 
 /// Um "Realm" é o equivalente a um servidor do Discord / time do Teams.
@@ -97,6 +108,14 @@ pub enum ClientEvent {
     JoinVoice(JoinVoice),
     LeaveVoice,
     UpdateVoiceState(UpdateVoiceState),
+    UpdateUserStatus(UpdateUserStatus),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct UpdateUserStatus {
+    pub status: UserStatus,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]
@@ -146,6 +165,7 @@ pub enum ServerEvent {
     MessageCreated(Message),
     UserJoined(User),
     UserLeft(User),
+    UserUpdated(User),
     VoicePresenceUpdated(VoicePresenceUpdated),
     Error(ErrorPayload),
 }
