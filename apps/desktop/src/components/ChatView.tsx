@@ -121,7 +121,7 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
       <form className="chat-input-container" onSubmit={submit}>
         <input
           className="chat-input"
-          placeholder={`Conversar em #${channel.name}`}
+          placeholder={`Conversar em ${channel.name}`}
           value={draft}
           maxLength={2000}
           onChange={(e) => setDraft(e.target.value)}

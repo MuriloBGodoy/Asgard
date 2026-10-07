@@ -115,10 +115,6 @@ input, textarea, select {
   color: var(--text-primary);
   font-weight: 500;
 }
-.channel-item::before {
-  content: "#";
-  opacity: 0.5;
-}
 
 .user-profile-bar {
   padding: 12px 8px;
@@ -158,10 +154,6 @@ input, textarea, select {
 .chat-title {
   font-size: 16px;
   font-weight: 600;
-}
-.chat-title::before {
-  content: "# ";
-  color: var(--text-secondary);
 }
 .members-toggle {
   background: var(--bg-panel);
