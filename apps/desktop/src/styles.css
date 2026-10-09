@@ -52,7 +52,7 @@ select {
 .layout-minimal {
   display: grid;
   grid-template-columns: 260px 1fr;
-  height: 100vh;
+  flex: 1;
   overflow: hidden;
 }
 
@@ -483,4 +483,25 @@ select {
 }
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* ---------- Titlebar ---------- */
+.titlebar-button {
+  background: transparent;
+  border: none;
+  width: 46px;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.1s, color 0.1s;
+}
+.titlebar-button:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary);
+}
+.titlebar-button.titlebar-close:hover {
+  background: #e81123;
+  color: white;
 }

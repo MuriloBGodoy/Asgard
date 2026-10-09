@@ -11,6 +11,8 @@ import { ProfileSettings } from "./components/ProfileSettings";
 import { useAsgard } from "./hooks/useAsgard";
 import { getAppInfo, type AppInfo } from "./lib/config";
 
+import { Titlebar } from "./components/Titlebar";
+
 export function App() {
   const [info, setInfo] = useState<AppInfo>();
   const [username, setUsername] = useState<string>();
@@ -23,6 +25,7 @@ export function App() {
 
   return (
     <>
+      <Titlebar />
       {!username ? (
         <Login version={info.version} onSubmit={setUsername} />
       ) : (
