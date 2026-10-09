@@ -27,7 +27,10 @@ pub async fn create_channel(
     Path(realm_id): Path<Uuid>,
     Json(payload): Json<CreateChannelPayload>,
 ) -> Result<Json<Channel>, StatusCode> {
-    if let Some(channel) = state.create_channel(realm_id, payload.name, payload.kind).await {
+    if let Some(channel) = state
+        .create_channel(realm_id, payload.name, payload.kind)
+        .await
+    {
         Ok(Json(channel))
     } else {
         Err(StatusCode::NOT_FOUND)

@@ -13,9 +13,12 @@
   --font-sans: "Inter", "Segoe UI", sans-serif;
 }
 
-* { box-sizing: border-box; }
+* {
+  box-sizing: border-box;
+}
 
-html, body {
+html,
+body {
   margin: 0;
   padding: 0;
   height: 100vh;
@@ -38,7 +41,9 @@ html, body {
   flex-direction: column;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
   user-select: auto;
   -webkit-user-select: auto;
 }
@@ -74,15 +79,25 @@ input, textarea, select {
   background: var(--bg-hover);
 }
 .realm-icon-mock {
-  width: 32px; height: 32px;
+  width: 32px;
+  height: 32px;
   background: var(--accent);
   border-radius: 8px;
-  display: grid; place-items: center;
-  font-weight: 600; font-size: 14px;
+  display: grid;
+  place-items: center;
+  font-weight: 600;
+  font-size: 14px;
 }
-.realm-info { flex: 1; }
-.realm-name { font-weight: 600; font-size: 15px; }
-.realm-chevron { color: var(--text-secondary); }
+.realm-info {
+  flex: 1;
+}
+.realm-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+.realm-chevron {
+  color: var(--text-secondary);
+}
 
 .channel-list-minimal {
   flex: 1;
@@ -98,7 +113,9 @@ input, textarea, select {
   margin: 16px 8px 8px;
 }
 .channel-item {
-  display: flex; align-items: center; gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
   padding: 8px 12px;
   border-radius: var(--radius-md);
   color: var(--text-secondary);
@@ -124,14 +141,30 @@ input, textarea, select {
   gap: 8px;
 }
 .user-avatar {
-  width: 32px; height: 32px;
+  width: 32px;
+  height: 32px;
   background: var(--bg-hover);
   border-radius: 50%;
-  display: grid; place-items: center;
+  display: grid;
+  place-items: center;
 }
-.user-info { flex: 1; min-width: 0; }
-.user-name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.user-status { font-size: 12px; color: var(--text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.user-info {
+  flex: 1;
+  min-width: 0;
+}
+.user-name {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.user-status {
+  font-size: 12px;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 /* ---------- Main Chat Area ---------- */
 .chat-area {
@@ -193,7 +226,7 @@ input, textarea, select {
 
 .message-item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   gap: 4px;
   user-select: text;
   -webkit-user-select: text;
@@ -334,7 +367,6 @@ input, textarea, select {
   margin-top: 8px;
 }
 
-
 /* User Profile Bar Extensions */
 .user-avatar.interactive {
   cursor: pointer;
@@ -413,7 +445,10 @@ input, textarea, select {
 /* ---------- Modals ---------- */
 .modal-overlay {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.7);
   display: grid;
   place-items: center;
@@ -427,9 +462,25 @@ input, textarea, select {
   padding: 24px;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 .context-menu-item:hover {
   background: var(--bg-hover);
+}
+
+/* ---------- Scrollbars ---------- */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
 }

@@ -4,7 +4,7 @@ import { HashRouter } from "react-router-dom";
 import { App } from "./App";
 import "./styles.css";
 
-// Remove default context menu globally (except if we wanted to allow it in specific places, 
+// Remove default context menu globally (except if we wanted to allow it in specific places,
 // but React onContextMenu will still fire for the custom channel menu)
 document.addEventListener("contextmenu", (e) => {
   // O menu customizado do React nos canais continuará funcionando

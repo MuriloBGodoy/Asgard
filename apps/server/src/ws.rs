@@ -100,13 +100,22 @@ async fn handle_socket(socket: WebSocket, state: AppState) {
                 }
             }
             Ok(ClientEvent::JoinVoice(payload)) => {
-                state.join_voice(user.clone(), payload.channel_id, payload.mic_muted, payload.deafened).await;
+                state
+                    .join_voice(
+                        user.clone(),
+                        payload.channel_id,
+                        payload.mic_muted,
+                        payload.deafened,
+                    )
+                    .await;
             }
             Ok(ClientEvent::LeaveVoice) => {
                 state.leave_voice(&user).await;
             }
             Ok(ClientEvent::UpdateVoiceState(payload)) => {
-                state.update_voice_state(&user, payload.mic_muted, payload.deafened).await;
+                state
+                    .update_voice_state(&user, payload.mic_muted, payload.deafened)
+                    .await;
             }
             Ok(ClientEvent::UpdateUserStatus(payload)) => {
                 user.status = payload.status;
@@ -120,13 +129,21 @@ async fn handle_socket(socket: WebSocket, state: AppState) {
                     }
                 }
                 if let Some(avatar) = payload.avatar_url {
-                    user.avatar_url = Some(avatar);
+                    user.avatar_url = if avatar.is_empty() {
+                        None
+                    } else {
+                        Some(avatar)
+                    };
                 }
                 if let Some(banner) = payload.banner_color {
-                    user.banner_color = Some(banner);
+                    user.banner_color = if banner.is_empty() {
+                        None
+                    } else {
+                        Some(banner)
+                    };
                 }
                 if let Some(bio) = payload.bio {
-                    user.bio = Some(bio);
+                    user.bio = if bio.is_empty() { None } else { Some(bio) };
                 }
                 state.update_user(&user).await;
             }

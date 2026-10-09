@@ -1,8 +1,4 @@
-use axum::{
-    extract::Query,
-    http::StatusCode,
-    Json,
-};
+use axum::{Json, extract::Query, http::StatusCode};
 use livekit_api::access_token::{AccessToken, VideoGrants};
 use serde::{Deserialize, Serialize};
 
@@ -19,7 +15,7 @@ pub struct TokenResponse {
 }
 
 /// Rota para gerar um token de acesso ao LiveKit.
-/// Na verso final, o `participant_name` (ou ID) e as permisses 
+/// Na verso final, o `participant_name` (ou ID) e as permisses
 /// viriam da sesso autenticada do usurio.
 pub async fn generate_token(
     Query(query): Query<TokenQuery>,

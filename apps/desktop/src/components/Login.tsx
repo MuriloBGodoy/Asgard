@@ -17,7 +17,12 @@ export function Login({ version, onSubmit }: Props) {
 
   return (
     <div className="login-wrapper">
-      <div className="login-box" onKeyDown={(e) => { if (e.key === 'Enter') submit(e); }}>
+      <div
+        className="login-box"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") submit(e);
+        }}
+      >
         <div className="login-brand">ASGARD</div>
         <div className="login-subtitle">Workspace & Community</div>
 

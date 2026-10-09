@@ -28,7 +28,13 @@ type Action =
   | { type: "channelEdited"; realmId: string; channelId: string; channel: any }
   | { type: "channelDeleted"; realmId: string; channelId: string };
 
-const initialState: State = { status: "connecting", realms: [], online: {}, messages: {}, voiceStates: {} };
+const initialState: State = {
+  status: "connecting",
+  realms: [],
+  online: {},
+  messages: {},
+  voiceStates: {},
+};
 
 function mergeMessages(current: Message[] = [], incoming: Message[]): Message[] {
   const byId = new Map(current.map((m) => [m.id, m]));
@@ -74,9 +80,32 @@ function reduceServerEvent(state: State, event: ServerEvent): State {
     }
     case "userUpdated":
       if (state.me?.id === event.data.id) {
-        return { ...state, me: event.data, online: { ...state.online, [event.data.id]: event.data } };
+        return {
+          ...state,
+          me: event.data,
+          online: { ...state.online, [event.data.id]: event.data },
+        };
       }
       return { ...state, online: { ...state.online, [event.data.id]: event.data } };
+    case "channelCreated":
+      return reducer(state, {
+        type: "channelCreated",
+        realmId: event.data.realmId,
+        channel: event.data.channel,
+      });
+    case "channelEdited":
+      return reducer(state, {
+        type: "channelEdited",
+        realmId: event.data.realmId,
+        channelId: event.data.channel.id,
+        channel: event.data.channel,
+      });
+    case "channelDeleted":
+      return reducer(state, {
+        type: "channelDeleted",
+        realmId: event.data.realmId,
+        channelId: event.data.channelId,
+      });
     case "error":
       return { ...state, lastError: event.data.message };
   }
@@ -98,7 +127,14 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         realms: state.realms.map((r) =>
-          r.id === action.realmId ? { ...r, channels: [...r.channels, action.channel] } : r
+          r.id === action.realmId
+            ? {
+                ...r,
+                channels: r.channels.some((c) => c.id === action.channel.id)
+                  ? r.channels
+                  : [...r.channels, action.channel],
+              }
+            : r,
         ),
       };
     case "channelEdited":
@@ -106,8 +142,11 @@ function reducer(state: State, action: Action): State {
         ...state,
         realms: state.realms.map((r) =>
           r.id === action.realmId
-            ? { ...r, channels: r.channels.map((c) => (c.id === action.channelId ? action.channel : c)) }
-            : r
+            ? {
+                ...r,
+                channels: r.channels.map((c) => (c.id === action.channelId ? action.channel : c)),
+              }
+            : r,
         ),
       };
     case "channelDeleted":
@@ -116,7 +155,7 @@ function reducer(state: State, action: Action): State {
         realms: state.realms.map((r) =>
           r.id === action.realmId
             ? { ...r, channels: r.channels.filter((c) => c.id !== action.channelId) }
-            : r
+            : r,
         ),
       };
     case "server":
@@ -219,9 +258,24 @@ export function useAsgard(serverUrl: string, username: string) {
     gateway.current?.send({ type: "updateUserStatus", data: { status } } as any);
   }, []);
 
-  const updateProfile = useCallback((profile: { username?: string, avatarUrl?: string, bannerColor?: string, bio?: string }) => {
-    gateway.current?.send({ type: "updateProfile", data: profile } as any);
-  }, []);
+  const updateProfile = useCallback(
+    (profile: { username?: string; avatarUrl?: string; bannerColor?: string; bio?: string }) => {
+      gateway.current?.send({ type: "updateProfile", data: profile } as any);
+    },
+    [],
+  );
 
-  return { ...state, sendMessage, loadHistory, createChannel, editChannel, deleteChannel, joinVoice, leaveVoice, updateVoiceState, updateUserStatus, updateProfile };
+  return {
+    ...state,
+    sendMessage,
+    loadHistory,
+    createChannel,
+    editChannel,
+    deleteChannel,
+    joinVoice,
+    leaveVoice,
+    updateVoiceState,
+    updateUserStatus,
+    updateProfile,
+  };
 }

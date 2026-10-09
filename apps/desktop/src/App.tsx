@@ -40,7 +40,9 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
   const [micMuted, setMicMuted] = useState(false);
   const [audioMuted, setAudioMuted] = useState(false);
 
-  const [manualStatus, setManualStatus] = useState<"online" | "away" | "busy" | "invisible">("online");
+  const [manualStatus, setManualStatus] = useState<"online" | "away" | "busy" | "invisible">(
+    "online",
+  );
   const [isIdle, setIsIdle] = useState(false);
 
   // Auto-away detector
@@ -50,7 +52,7 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
       setIsIdle(false);
       clearTimeout(idleTimer);
       // Set to away after 5 minutes of inactivity (300_000 ms)
-      idleTimer = setTimeout(() => setIsIdle(true), 300_000); 
+      idleTimer = setTimeout(() => setIsIdle(true), 300_000);
     }
 
     // Add event listeners for activity
@@ -81,7 +83,6 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
     }
   }, [manualStatus, isIdle, asgard.status, asgard.updateUserStatus]);
 
-
   // Enviar para o servidor sempre que mudar
   useEffect(() => {
     if (activeVoiceId) {
@@ -92,20 +93,23 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
   if (asgard.realms.length === 0) return null;
 
   const activeRealm = asgard.realms[0];
-  const activeVoiceChannel = activeVoiceId 
-    ? activeRealm.channels.find(c => c.id === activeVoiceId)
+  const activeVoiceChannel = activeVoiceId
+    ? activeRealm.channels.find((c) => c.id === activeVoiceId)
     : null;
 
   // The effectively displayed status in the UserProfileBar
-  const effectiveStatus = (manualStatus === "invisible" || manualStatus === "away") 
-    ? manualStatus 
-    : (isIdle ? "away" : manualStatus);
+  const effectiveStatus =
+    manualStatus === "invisible" || manualStatus === "away"
+      ? manualStatus
+      : isIdle
+        ? "away"
+        : manualStatus;
 
   return (
     <div className="layout-minimal">
       <aside className="sidebar">
         <RealmBar realms={asgard.realms} activeId={activeRealm.id} onSelect={() => {}} />
-        
+
         <ChannelList
           realm={activeRealm}
           activeTextId={location.pathname.split("/").pop()}
@@ -120,7 +124,7 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
           onDeleteChannel={asgard.deleteChannel}
         />
 
-        <UserProfileBar 
+        <UserProfileBar
           user={asgard.me!}
           inVoiceChannel={!!activeVoiceId}
           onDisconnect={() => setActiveVoiceId(null)}
@@ -144,24 +148,30 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
       <main className="chat-area">
         <Routes>
           <Route path="/" element={<HomeRedirect realm={activeRealm} />} />
-          <Route 
-            path="/channels/:channelId" 
-            element={<ChannelRoute asgard={asgard} realm={activeRealm} />} 
+          <Route
+            path="/channels/:channelId"
+            element={<ChannelRoute asgard={asgard} realm={activeRealm} />}
           />
-          <Route path="/settings/profile" element={<ProfileSettings me={asgard.me!} onUpdate={asgard.updateProfile} />} />
+          <Route
+            path="/settings/profile"
+            element={<ProfileSettings me={asgard.me!} onUpdate={asgard.updateProfile} />}
+          />
           <Route path="/settings/general" element={<SettingsGeneral />} />
-          <Route path="/meta" element={<div style={{padding: 24}}>Carregando Metaverso 2D...</div>} />
+          <Route
+            path="/meta"
+            element={<div style={{ padding: 24 }}>Carregando Metaverso 2D...</div>}
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
 
       {/* Renderiza a conexão de voz globalmente em background */}
       {activeVoiceChannel && (
-        <VoiceRoom 
-          key={activeVoiceChannel.id} 
-          channel={activeVoiceChannel} 
-          asgard={asgard} 
-          serverUrl={serverUrl} 
+        <VoiceRoom
+          key={activeVoiceChannel.id}
+          channel={activeVoiceChannel}
+          asgard={asgard}
+          serverUrl={serverUrl}
           micMuted={micMuted}
           audioMuted={audioMuted}
         />
@@ -175,7 +185,7 @@ function HomeRedirect({ realm }: { realm: any }) {
   if (firstTextChannel) {
     return <Navigate to={`/channels/${firstTextChannel.id}`} replace />;
   }
-  return <div style={{padding: 24}}>Nenhum canal disponível.</div>;
+  return <div style={{ padding: 24 }}>Nenhum canal disponível.</div>;
 }
 
 function ChannelRoute({ asgard, realm }: { asgard: ReturnType<typeof useAsgard>; realm: any }) {
@@ -189,13 +199,17 @@ function ChannelRoute({ asgard, realm }: { asgard: ReturnType<typeof useAsgard>;
   }, [channel?.id, channel?.kind, asgard.loadHistory]);
 
   if (!channel) {
-    return <div style={{padding: 24, color: "var(--text-secondary)"}}>Canal não encontrado.</div>;
+    return <div style={{ padding: 24, color: "var(--text-secondary)" }}>Canal não encontrado.</div>;
   }
 
-  // Se por acaso alguém navegar para a rota de voz via URL, a gente pode 
+  // Se por acaso alguém navegar para a rota de voz via URL, a gente pode
   // só mostrar um aviso ou redirecionar. Na nova arquitetura não navegamos pra voz.
   if (channel.kind === "voice") {
-    return <div style={{padding: 24, color: "var(--text-secondary)"}}>Os canais de voz funcionam em background agora. Clique em um canal de texto para ver o chat!</div>;
+    return (
+      <div style={{ padding: 24, color: "var(--text-secondary)" }}>
+        Os canais de voz funcionam em background agora. Clique em um canal de texto para ver o chat!
+      </div>
+    );
   }
 
   return (

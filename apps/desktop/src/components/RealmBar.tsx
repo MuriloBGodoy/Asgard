@@ -12,9 +12,7 @@ export function RealmBar({ realms, activeId, onSelect }: Props) {
 
   return (
     <div className="realm-selector" onClick={() => onSelect(activeRealm.id)}>
-      <div className="realm-icon-mock">
-        {activeRealm.name.substring(0, 1).toUpperCase()}
-      </div>
+      <div className="realm-icon-mock">{activeRealm.name.substring(0, 1).toUpperCase()}</div>
       <div className="realm-info">
         <div className="realm-name">{activeRealm.name}</div>
       </div>

@@ -1,9 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  LiveKitRoom,
-  RoomAudioRenderer,
-  useLocalParticipant,
-} from "@livekit/components-react";
+import { LiveKitRoom, RoomAudioRenderer, useLocalParticipant } from "@livekit/components-react";
 import "@livekit/components-styles";
 import type { Channel } from "../bindings/Channel";
 
@@ -29,15 +25,15 @@ function LiveKitMuteSync({ micMuted }: { micMuted: boolean }) {
 import { RoomEvent } from "livekit-client";
 function ActiveSpeakersSync() {
   const room = useRoomContext();
-  
+
   useEffect(() => {
     if (!room) return;
-    
+
     const onSpeakersChanged = (speakers: any[]) => {
-      const names = speakers.map(s => s.name).filter(Boolean);
+      const names = speakers.map((s) => s.name).filter(Boolean);
       window.dispatchEvent(new CustomEvent("asgard_speaking_update", { detail: names }));
     };
-    
+
     room.on(RoomEvent.ActiveSpeakersChanged, onSpeakersChanged);
     return () => {
       room.off(RoomEvent.ActiveSpeakersChanged, onSpeakersChanged);
@@ -86,7 +82,13 @@ if (isKrispNoiseFilterSupported()) {
   krispFilter = KrispNoiseFilter();
 }
 
-export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioMuted = false }: Props) {
+export function VoiceRoom({
+  channel,
+  asgard,
+  serverUrl,
+  micMuted = false,
+  audioMuted = false,
+}: Props) {
   const [token, setToken] = useState<string | null>(null);
   const [liveKitUrl, setLiveKitUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -104,7 +106,9 @@ export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioM
       if (!asgard.me) return;
       try {
         const httpUrl = serverUrl.replace("ws://", "http://").replace("wss://", "https://");
-        const res = await fetch(`${httpUrl}/api/livekit/token?room=${encodeURIComponent(channel.id)}&participant_name=${encodeURIComponent(asgard.me.username)}`);
+        const res = await fetch(
+          `${httpUrl}/api/livekit/token?room=${encodeURIComponent(channel.id)}&participant_name=${encodeURIComponent(asgard.me.username)}`,
+        );
         if (!res.ok) {
           throw new Error("Falha ao obter token de voz");
         }
@@ -119,8 +123,10 @@ export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioM
     fetchToken();
   }, [channel.id, asgard.me, serverUrl]);
 
-  const [noiseFilterEnabled, setNoiseFilterEnabled] = useState(localStorage.getItem("asgard_noise_filter") !== "false"); // Default true
-  
+  const [noiseFilterEnabled, setNoiseFilterEnabled] = useState(
+    localStorage.getItem("asgard_noise_filter") !== "false",
+  ); // Default true
+
   useEffect(() => {
     function handleNoiseFilterChange() {
       setNoiseFilterEnabled(localStorage.getItem("asgard_noise_filter") !== "false");
@@ -151,12 +157,7 @@ export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioM
 
   return (
     <div style={{ display: "none" }}>
-      <LiveKitRoom
-        video={false}
-        audio={audioOptions}
-        token={token}
-        serverUrl={liveKitUrl}
-      >
+      <LiveKitRoom video={false} audio={audioOptions} token={token} serverUrl={liveKitUrl}>
         <LiveKitMuteSync micMuted={micMuted} />
         <LiveKitDeviceSync />
         <ActiveSpeakersSync />
@@ -165,4 +166,3 @@ export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioM
     </div>
   );
 }
-

@@ -4,7 +4,9 @@ use std::{
     time::{SystemTime, UNIX_EPOCH},
 };
 
-use asgard_protocol::{Channel, ChannelKind, Message, Realm, RealmKind, ServerEvent, User, VoiceParticipant};
+use asgard_protocol::{
+    Channel, ChannelKind, Message, Realm, RealmKind, ServerEvent, User, VoiceParticipant,
+};
 use tokio::sync::{RwLock, broadcast};
 use uuid::Uuid;
 
@@ -56,7 +58,12 @@ impl AppState {
             .any(|c| c.id == channel_id && c.kind == ChannelKind::Text)
     }
 
-    pub async fn create_channel(&self, realm_id: Uuid, name: String, kind: ChannelKind) -> Option<Channel> {
+    pub async fn create_channel(
+        &self,
+        realm_id: Uuid,
+        name: String,
+        kind: ChannelKind,
+    ) -> Option<Channel> {
         let mut realms = self.inner.realms.write().await;
         let realm = realms.iter_mut().find(|r| r.id == realm_id)?;
         let channel = Channel {
@@ -66,14 +73,29 @@ impl AppState {
             kind,
         };
         realm.channels.push(channel.clone());
+        self.broadcast(ServerEvent::ChannelCreated(
+            asgard_protocol::ChannelCreated {
+                realm_id,
+                channel: channel.clone(),
+            },
+        ));
         Some(channel)
     }
 
-    pub async fn edit_channel(&self, realm_id: Uuid, channel_id: Uuid, name: String) -> Option<Channel> {
+    pub async fn edit_channel(
+        &self,
+        realm_id: Uuid,
+        channel_id: Uuid,
+        name: String,
+    ) -> Option<Channel> {
         let mut realms = self.inner.realms.write().await;
         let realm = realms.iter_mut().find(|r| r.id == realm_id)?;
         let channel = realm.channels.iter_mut().find(|c| c.id == channel_id)?;
         channel.name = name;
+        self.broadcast(ServerEvent::ChannelEdited(asgard_protocol::ChannelEdited {
+            realm_id,
+            channel: channel.clone(),
+        }));
         Some(channel.clone())
     }
 
@@ -85,7 +107,17 @@ impl AppState {
         };
         let len_before = realm.channels.len();
         realm.channels.retain(|c| c.id != channel_id);
-        realm.channels.len() < len_before
+        if realm.channels.len() < len_before {
+            self.broadcast(ServerEvent::ChannelDeleted(
+                asgard_protocol::ChannelDeleted {
+                    realm_id,
+                    channel_id,
+                },
+            ));
+            true
+        } else {
+            false
+        }
     }
 
     pub async fn messages(&self, channel_id: Uuid) -> Vec<Message> {
@@ -126,7 +158,7 @@ impl AppState {
     pub async fn join_voice(&self, user: User, channel_id: Uuid, mic_muted: bool, deafened: bool) {
         // Primeiro remove o usuario de qualquer outro canal de voz
         self.leave_voice(&user).await;
-        
+
         let mut states = self.inner.voice_states.write().await;
         let channel_users = states.entry(channel_id).or_default();
         channel_users.push(VoiceParticipant {
@@ -134,20 +166,22 @@ impl AppState {
             mic_muted,
             deafened,
         });
-        
+
         let participants = channel_users.clone();
         drop(states);
-        
-        self.broadcast(ServerEvent::VoicePresenceUpdated(asgard_protocol::VoicePresenceUpdated {
-            channel_id,
-            participants,
-        }));
+
+        self.broadcast(ServerEvent::VoicePresenceUpdated(
+            asgard_protocol::VoicePresenceUpdated {
+                channel_id,
+                participants,
+            },
+        ));
     }
 
     pub async fn leave_voice(&self, user: &User) {
         let mut states = self.inner.voice_states.write().await;
         let mut updated_channel = None;
-        
+
         for (channel_id, users) in states.iter_mut() {
             if let Some(pos) = users.iter().position(|p| p.user.id == user.id) {
                 users.remove(pos);
@@ -155,21 +189,23 @@ impl AppState {
                 break; // Usuario so pode estar em um canal
             }
         }
-        
+
         drop(states);
-        
+
         if let Some((channel_id, participants)) = updated_channel {
-            self.broadcast(ServerEvent::VoicePresenceUpdated(asgard_protocol::VoicePresenceUpdated {
-                channel_id,
-                participants,
-            }));
+            self.broadcast(ServerEvent::VoicePresenceUpdated(
+                asgard_protocol::VoicePresenceUpdated {
+                    channel_id,
+                    participants,
+                },
+            ));
         }
     }
 
     pub async fn update_voice_state(&self, user: &User, mic_muted: bool, deafened: bool) {
         let mut states = self.inner.voice_states.write().await;
         let mut updated_channel = None;
-        
+
         for (channel_id, users) in states.iter_mut() {
             if let Some(participant) = users.iter_mut().find(|p| p.user.id == user.id) {
                 participant.mic_muted = mic_muted;
@@ -178,14 +214,16 @@ impl AppState {
                 break;
             }
         }
-        
+
         drop(states);
-        
+
         if let Some((channel_id, participants)) = updated_channel {
-            self.broadcast(ServerEvent::VoicePresenceUpdated(asgard_protocol::VoicePresenceUpdated {
-                channel_id,
-                participants,
-            }));
+            self.broadcast(ServerEvent::VoicePresenceUpdated(
+                asgard_protocol::VoicePresenceUpdated {
+                    channel_id,
+                    participants,
+                },
+            ));
         }
     }
 
@@ -207,6 +245,27 @@ impl AppState {
         if let Some(u) = online.get_mut(&user.id) {
             *u = user.clone();
             self.broadcast(ServerEvent::UserUpdated(u.clone()));
+        }
+        drop(online);
+
+        let mut voice_states = self.inner.voice_states.write().await;
+        let mut updated_channel = None;
+        for (channel_id, users) in voice_states.iter_mut() {
+            if let Some(participant) = users.iter_mut().find(|p| p.user.id == user.id) {
+                participant.user = user.clone();
+                updated_channel = Some((*channel_id, users.clone()));
+                break;
+            }
+        }
+        drop(voice_states);
+
+        if let Some((channel_id, participants)) = updated_channel {
+            self.broadcast(ServerEvent::VoicePresenceUpdated(
+                asgard_protocol::VoicePresenceUpdated {
+                    channel_id,
+                    participants,
+                },
+            ));
         }
     }
 

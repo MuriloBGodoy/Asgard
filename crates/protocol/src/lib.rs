@@ -186,7 +186,34 @@ pub enum ServerEvent {
     UserLeft(User),
     UserUpdated(User),
     VoicePresenceUpdated(VoicePresenceUpdated),
+    ChannelCreated(ChannelCreated),
+    ChannelEdited(ChannelEdited),
+    ChannelDeleted(ChannelDeleted),
     Error(ErrorPayload),
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct ChannelCreated {
+    pub realm_id: Uuid,
+    pub channel: Channel,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct ChannelEdited {
+    pub realm_id: Uuid,
+    pub channel: Channel,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export)]
+pub struct ChannelDeleted {
+    pub realm_id: Uuid,
+    pub channel_id: Uuid,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

@@ -18,7 +18,7 @@ const timeFormat = new Intl.DateTimeFormat("pt-BR", { hour: "2-digit", minute: "
 export function ChatView({ channel, messages, error, online, onSend }: Props) {
   const [draft, setDraft] = useState("");
   const [showMembers, setShowMembers] = useState(true);
-  
+
   const parentRef = useRef<HTMLDivElement>(null);
 
   const rowVirtualizer = useVirtualizer({
@@ -42,12 +42,13 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
     setDraft("");
   }
 
-  if (!channel) return <div style={{padding: 24, color: "var(--text-secondary)"}}>Selecione um canal</div>;
+  if (!channel)
+    return <div style={{ padding: 24, color: "var(--text-secondary)" }}>Selecione um canal</div>;
 
   // Categorizar usuários para exibir na barra lateral (Status real)
-  const availableOrBusy: (User & { st: { label: string, color: string } })[] = [];
-  const away: (User & { st: { label: string, color: string } })[] = [];
-  const offline: (User & { st: { label: string, color: string } })[] = [];
+  const availableOrBusy: (User & { st: { label: string; color: string } })[] = [];
+  const away: (User & { st: { label: string; color: string } })[] = [];
+  const offline: (User & { st: { label: string; color: string } })[] = [];
 
   const statusMap = {
     online: { label: "Disponível", color: "#43b581" },
@@ -56,7 +57,7 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
     invisible: { label: "Invisível", color: "#747f8d" },
   };
 
-  online.forEach(u => {
+  online.forEach((u) => {
     const st = statusMap[u.status] || statusMap.online;
 
     if (u.status === "invisible") {
@@ -80,7 +81,7 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
       <div style={{ display: "flex", flexDirection: "column", flex: 1, minWidth: 0 }}>
         <header className="chat-header">
           <div className="chat-title">{channel.name}</div>
-          <button 
+          <button
             className="members-toggle-btn"
             onClick={() => setShowMembers(!showMembers)}
             title="Alternar Lista de Membros"
@@ -93,10 +94,19 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
               placeItems: "center",
               color: showMembers ? "var(--text-primary)" : "var(--text-secondary)",
               cursor: "pointer",
-              transition: "all 0.2s"
+              transition: "all 0.2s",
             }}
           >
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
               <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
               <circle cx="9" cy="7" r="4" />
               <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
@@ -105,23 +115,32 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
           </button>
         </header>
 
-        <div 
+        <div
           ref={parentRef}
-          className="messages-list" 
+          className="messages-list"
           style={{ overflowY: "auto", flex: 1, padding: 0 }}
         >
-          {messages.length === 0 && <p style={{color: "var(--text-secondary)", padding: 24}}>Nenhuma mensagem ainda.</p>}
-          
+          {messages.length === 0 && (
+            <p style={{ color: "var(--text-secondary)", padding: 24 }}>Nenhuma mensagem ainda.</p>
+          )}
+
           {messages.length > 0 && (
             <div
               style={{
-                height: `${rowVirtualizer.getTotalSize()}px`,
+                height: `${rowVirtualizer.getTotalSize() + 24}px`,
                 width: "100%",
                 position: "relative",
               }}
             >
               {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                 const m = messages[virtualRow.index];
+                const currentUser = online.find((u) => u.id === m.author.id) || m.author;
+                const prevM = virtualRow.index > 0 ? messages[virtualRow.index - 1] : null;
+                const isSameAsPrevious =
+                  prevM &&
+                  prevM.author.id === m.author.id &&
+                  m.sentAt - prevM.sentAt < 5 * 60 * 1000;
+
                 return (
                   <div
                     key={virtualRow.key}
@@ -136,15 +155,67 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
                       padding: "0 24px",
                     }}
                   >
-                    <div className="message-item" style={{ padding: "12px 0" }}>
-                      <div className="message-header">
-                        <ProfilePopover user={m.author}>
-                          <span className="message-author">{m.author.username}</span>
+                    <div
+                      className="message-item"
+                      style={{
+                        padding: isSameAsPrevious ? "2px 0" : "12px 0",
+                        display: "flex",
+                        gap: "16px",
+                        alignItems: "flex-start",
+                      }}
+                    >
+                      {isSameAsPrevious ? (
+                        <div style={{ width: 40, flexShrink: 0 }} />
+                      ) : (
+                        <ProfilePopover user={currentUser}>
+                          <div
+                            style={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: "50%",
+                              flexShrink: 0,
+                              backgroundImage: currentUser.avatar_url
+                                ? `url(${currentUser.avatar_url})`
+                                : "none",
+                              backgroundSize: "cover",
+                              backgroundPosition: "center",
+                              backgroundColor: "var(--bg-panel)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: "var(--text-secondary)",
+                              fontSize: "14px",
+                              fontWeight: 500,
+                              cursor: "pointer",
+                            }}
+                          >
+                            {!currentUser.avatar_url &&
+                              currentUser.username.substring(0, 2).toUpperCase()}
+                          </div>
                         </ProfilePopover>
-                        <span className="message-time">{timeFormat.format(m.sentAt)}</span>
-                      </div>
-                      <div className="message-content">
-                        {m.content}
+                      )}
+                      <div
+                        style={{ flex: 1, minWidth: 0, display: "flex", flexDirection: "column" }}
+                      >
+                        {!isSameAsPrevious && (
+                          <div
+                            className="message-header"
+                            style={{
+                              marginBottom: "4px",
+                              display: "flex",
+                              alignItems: "baseline",
+                              gap: "8px",
+                            }}
+                          >
+                            <ProfilePopover user={currentUser}>
+                              <span className="message-author">{currentUser.username}</span>
+                            </ProfilePopover>
+                            <span className="message-time">{timeFormat.format(m.sentAt)}</span>
+                          </div>
+                        )}
+                        <div className="message-content" style={{ lineHeight: "1.4" }}>
+                          {m.content}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -154,7 +225,19 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
           )}
         </div>
 
-        {error && <div style={{margin: "0 24px 16px", padding: 12, background: "rgba(224, 94, 94, 0.15)", color: "var(--danger)", borderRadius: 8}}>{error}</div>}
+        {error && (
+          <div
+            style={{
+              margin: "0 24px 16px",
+              padding: 12,
+              background: "rgba(224, 94, 94, 0.15)",
+              color: "var(--danger)",
+              borderRadius: 8,
+            }}
+          >
+            {error}
+          </div>
+        )}
 
         <form className="chat-input-container" onSubmit={submit}>
           <input
@@ -169,33 +252,50 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
 
       {/* Painel lateral de Membros */}
       {showMembers && (
-        <aside className="members-sidebar" style={{ 
-          width: 260, 
-          background: "var(--bg-panel)", 
-          borderLeft: "1px solid var(--border)", 
-          display: "flex", 
-          flexDirection: "column", 
-          overflowY: "auto",
-          padding: "16px 8px"
-        }}>
+        <aside
+          className="members-sidebar"
+          style={{
+            width: 260,
+            background: "var(--bg-panel)",
+            borderLeft: "1px solid var(--border)",
+            display: "flex",
+            flexDirection: "column",
+            overflowY: "auto",
+            padding: "16px 8px",
+          }}
+        >
           {availableOrBusy.length > 0 && (
             <>
               <div className="channel-group-title">Disponíveis - {availableOrBusy.length}</div>
-              {availableOrBusy.map(user => (
+              {availableOrBusy.map((user) => (
                 <ProfilePopover key={user.id} user={user}>
                   <div className="member-item">
                     <div style={{ position: "relative", width: 32, height: 32 }}>
-                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
+                      <span
+                        className="user-avatar"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none",
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }}
+                      >
                         {!user.avatar_url && user.username.substring(0, 2).toUpperCase()}
                       </span>
-                      <span style={{
-                        position: "absolute",
-                        bottom: -2, right: -2,
-                        width: 12, height: 12,
-                        borderRadius: "50%",
-                        background: user.st.color,
-                        border: "2px solid var(--bg-panel)"
-                      }} title={user.st.label} />
+                      <span
+                        style={{
+                          position: "absolute",
+                          bottom: -2,
+                          right: -2,
+                          width: 12,
+                          height: 12,
+                          borderRadius: "50%",
+                          background: user.st.color,
+                          border: "2px solid var(--bg-panel)",
+                        }}
+                        title={user.st.label}
+                      />
                     </div>
                     <div className="member-info">
                       <span className="member-name">{user.username}</span>
@@ -208,24 +308,41 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
 
           {away.length > 0 && (
             <>
-              <div className="channel-group-title" style={availableOrBusy.length > 0 ? { marginTop: 16 } : {}}>
+              <div
+                className="channel-group-title"
+                style={availableOrBusy.length > 0 ? { marginTop: 16 } : {}}
+              >
                 Ausentes - {away.length}
               </div>
-              {away.map(user => (
+              {away.map((user) => (
                 <ProfilePopover key={user.id} user={user}>
                   <div className="member-item" style={{ opacity: 0.5 }}>
                     <div style={{ position: "relative", width: 32, height: 32 }}>
-                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
+                      <span
+                        className="user-avatar"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none",
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }}
+                      >
                         {!user.avatar_url && user.username.substring(0, 2).toUpperCase()}
                       </span>
-                      <span style={{
-                        position: "absolute",
-                        bottom: -2, right: -2,
-                        width: 12, height: 12,
-                        borderRadius: "50%",
-                        background: user.st.color,
-                        border: "2px solid var(--bg-panel)"
-                      }} title={user.st.label} />
+                      <span
+                        style={{
+                          position: "absolute",
+                          bottom: -2,
+                          right: -2,
+                          width: 12,
+                          height: 12,
+                          borderRadius: "50%",
+                          background: user.st.color,
+                          border: "2px solid var(--bg-panel)",
+                        }}
+                        title={user.st.label}
+                      />
                     </div>
                     <div className="member-info">
                       <span className="member-name">{user.username}</span>
@@ -238,24 +355,41 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
 
           {offline.length > 0 && (
             <>
-              <div className="channel-group-title" style={(availableOrBusy.length > 0 || away.length > 0) ? { marginTop: 16 } : {}}>
+              <div
+                className="channel-group-title"
+                style={availableOrBusy.length > 0 || away.length > 0 ? { marginTop: 16 } : {}}
+              >
                 Offline - {offline.length}
               </div>
-              {offline.map(user => (
+              {offline.map((user) => (
                 <ProfilePopover key={user.id} user={user}>
                   <div className="member-item" style={{ opacity: 0.5 }}>
                     <div style={{ position: "relative", width: 32, height: 32 }}>
-                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
+                      <span
+                        className="user-avatar"
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none",
+                          backgroundSize: "cover",
+                          backgroundPosition: "center",
+                        }}
+                      >
                         {!user.avatar_url && user.username.substring(0, 2).toUpperCase()}
                       </span>
-                      <span style={{
-                        position: "absolute",
-                        bottom: -2, right: -2,
-                        width: 12, height: 12,
-                        borderRadius: "50%",
-                        background: user.st.color,
-                        border: "2px solid var(--bg-panel)"
-                      }} title="Offline" />
+                      <span
+                        style={{
+                          position: "absolute",
+                          bottom: -2,
+                          right: -2,
+                          width: 12,
+                          height: 12,
+                          borderRadius: "50%",
+                          background: user.st.color,
+                          border: "2px solid var(--bg-panel)",
+                        }}
+                        title="Offline"
+                      />
                     </div>
                     <div className="member-info">
                       <span className="member-name">{user.username}</span>
@@ -270,4 +404,3 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
     </div>
   );
 }
-
