@@ -25,11 +25,6 @@ fn app_info() -> AppInfo {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
-        .setup(|app| {
-            #[cfg(any(windows, target_os = "macos"))]
-            window_shadows_v2::set_shadows(app, true);
-            Ok(())
-        })
         .invoke_handler(tauri::generate_handler![app_info])
         .run(tauri::generate_context!())
         .expect("erro ao iniciar o Asgard");

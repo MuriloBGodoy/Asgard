@@ -13,25 +13,56 @@ import { getAppInfo, type AppInfo } from "./lib/config";
 
 import { Titlebar } from "./components/Titlebar";
 
+import { isTauri } from "@tauri-apps/api/core";
+
 export function App() {
   const [info, setInfo] = useState<AppInfo>();
   const [username, setUsername] = useState<string>();
+  const [isMaximized, setIsMaximized] = useState(false);
 
   useEffect(() => {
     getAppInfo().then(setInfo);
+
+    if (isTauri()) {
+      import("@tauri-apps/api/window").then(({ getCurrentWindow }) => {
+        const win = getCurrentWindow();
+        win.isMaximized().then(setIsMaximized);
+        win.onResized(async () => {
+          setIsMaximized(await win.isMaximized());
+        });
+      });
+    }
   }, []);
 
   if (!info) return null;
 
+  const tauriPadding = isTauri() && !isMaximized ? "8px" : "0px";
+  const tauriRadius = isTauri() && !isMaximized ? "12px" : "0px";
+  const tauriShadow = isTauri() && !isMaximized ? "0 0 15px rgba(0,0,0,0.6)" : "none";
+  const tauriBorder = isTauri() && !isMaximized ? "1px solid var(--border)" : "none";
+
   return (
-    <>
-      <Titlebar />
-      {!username ? (
-        <Login version={info.version} onSubmit={setUsername} />
-      ) : (
-        <Workspace serverUrl={info.serverUrl} username={username} />
-      )}
-    </>
+    <div style={{ padding: tauriPadding, flex: 1, display: "flex", flexDirection: "column" }}>
+      <div
+        style={{
+          flex: 1,
+          display: "flex",
+          flexDirection: "column",
+          background: "var(--bg-app)",
+          borderRadius: tauriRadius,
+          boxShadow: tauriShadow,
+          border: tauriBorder,
+          overflow: "hidden",
+        }}
+      >
+        <Titlebar />
+        {!username ? (
+          <Login version={info.version} onSubmit={setUsername} />
+        ) : (
+          <Workspace serverUrl={info.serverUrl} username={username} />
+        )}
+      </div>
+    </div>
   );
 }
 

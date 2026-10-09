@@ -35,7 +35,7 @@ body {
 #root {
   height: 100vh;
   width: 100vw;
-  background: var(--bg-app);
+  background: transparent;
   overflow: hidden;
   display: flex;
   flex-direction: column;
