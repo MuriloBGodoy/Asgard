@@ -30,10 +30,10 @@ export function UserProfileBar({
   const [showStatusMenu, setShowStatusMenu] = useState(false);
 
   const statusOptions: { id: UserStatus; label: string; color: string }[] = [
-    { id: "online", label: "DisponÃ­vel", color: "#43b581" },
+    { id: "online", label: "Disponível", color: "#43b581" },
     { id: "away", label: "Ausente", color: "#faa61a" },
     { id: "busy", label: "Ocupado", color: "#f04747" },
-    { id: "invisible", label: "InvisÃ­vel", color: "#747f8d" },
+    { id: "invisible", label: "Invisível", color: "#747f8d" },
   ];
   const currentStatusObj = statusOptions.find(s => s.id === currentStatus) || statusOptions[0];
 
@@ -52,13 +52,13 @@ export function UserProfileBar({
       <div 
         className="user-avatar interactive" 
         onClick={() => navigate("/settings/profile")}
-        title="ConfiguraÃ§Ãµes de Perfil"
+        title="Configurações de Perfil"
         style={{ backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none", backgroundSize: "cover", backgroundPosition: "center" }}
       >
         {!user.avatar_url && user.username.substring(0, 2).toUpperCase()}
       </div>
       
-      {/* InformaÃ§Ãµes (Status alterÃ¡vel) */}
+      {/* Informações (Status alterável) */}
       <div className="user-info" style={{ position: "relative", display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <div className="user-name">{user.username}</div>
         <div 
@@ -139,7 +139,7 @@ export function UserProfileBar({
         <button 
           className="control-btn"
           onClick={() => navigate("/settings/general")}
-          title="ConfiguraÃ§Ãµes Gerais"
+          title="Configurações Gerais"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="3" />

@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import type { User } from "../bindings/User";
 import { createPortal } from "react-dom";
 
@@ -22,7 +22,7 @@ export function ProfilePopover({ user, children }: Props) {
       let top = rect.top;
 
       if (left < 16) {
-        // Se nÃ£o couber Ã  esquerda, colocamos Ã  direita
+        // Se não couber à esquerda, colocamos à direita
         left = rect.right + 16;
       }
 
@@ -78,8 +78,8 @@ export function ProfilePopover({ user, children }: Props) {
             backgroundPosition: "center"
           }} />
           
-                    <div style={{ padding: "0 16px 16px" }}>
-            <div style={{ display: "flex", gap: "12px", alignItems: "flex-end", marginTop: "-30px", marginBottom: "12px" }}>
+          <div style={{ padding: "0 16px 16px" }}>
+            <div style={{ display: "flex", gap: "16px", alignItems: "flex-start", marginTop: "12px", marginBottom: "16px" }}>
               {/* Avatar Profile Box */}
               <div style={{ 
                 width: 80, 
@@ -88,7 +88,8 @@ export function ProfilePopover({ user, children }: Props) {
                 background: "var(--bg-panel)", 
                 padding: 6,
                 boxSizing: "border-box",
-                flexShrink: 0
+                flexShrink: 0,
+                marginTop: "-50px" // Move avatar up over the banner
               }}>
                 <div style={{
                   width: "100%",
@@ -109,7 +110,7 @@ export function ProfilePopover({ user, children }: Props) {
               </div>
 
               {/* User Details */}
-              <div style={{ paddingBottom: "6px", display: "flex", flexDirection: "column", gap: "4px" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
                 <div style={{ fontSize: 20, fontWeight: 700, color: "var(--text-primary)", lineHeight: 1.2 }}>{user.username}</div>
                 <div style={{ fontSize: 14, color: "var(--text-secondary)", display: "flex", alignItems: "center", gap: 6 }}>
                   <div style={{ 

@@ -44,16 +44,16 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
 
   if (!channel) return <div style={{padding: 24, color: "var(--text-secondary)"}}>Selecione um canal</div>;
 
-  // Categorizar usuÃ¡rios para exibir na barra lateral (Status real)
+  // Categorizar usuários para exibir na barra lateral (Status real)
   const availableOrBusy: (User & { st: { label: string, color: string } })[] = [];
   const away: (User & { st: { label: string, color: string } })[] = [];
   const offline: (User & { st: { label: string, color: string } })[] = [];
 
   const statusMap = {
-    online: { label: "DisponÃ­vel", color: "#43b581" },
+    online: { label: "Disponível", color: "#43b581" },
     away: { label: "Ausente", color: "#faa61a" },
     busy: { label: "Ocupado", color: "#f04747" },
-    invisible: { label: "InvisÃ­vel", color: "#747f8d" },
+    invisible: { label: "Invisível", color: "#747f8d" },
   };
 
   online.forEach(u => {
@@ -68,7 +68,7 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
     }
   });
 
-  // Ordenar usuÃ¡rios (DisponÃ­vel primeiro, Ocupado depois) - opcional
+  // Ordenar usuários (Disponível primeiro, Ocupado depois) - opcional
   availableOrBusy.sort((a, b) => {
     if (a.status === b.status) return a.username.localeCompare(b.username);
     return a.status === "online" ? -1 : 1;
@@ -180,7 +180,7 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
         }}>
           {availableOrBusy.length > 0 && (
             <>
-              <div className="channel-group-title">DisponÃ­veis â€” {availableOrBusy.length}</div>
+              <div className="channel-group-title">Disponíveis â€” {availableOrBusy.length}</div>
               {availableOrBusy.map(user => (
                 <ProfilePopover key={user.id} user={user}>
                   <div className="member-item">

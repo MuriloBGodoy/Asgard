@@ -117,16 +117,7 @@ export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioM
     fetchToken();
   }, [channel.id, asgard.me, serverUrl]);
 
-  if (error) {
-    console.error("Erro na sala de voz:", error);
-    return null;
-  }
-
-  if (!token || !liveKitUrl) {
-    return null; // Connecting...
-  }
-
-    const [noiseFilterEnabled, setNoiseFilterEnabled] = useState(localStorage.getItem("asgard_noise_filter") !== "false"); // Default true
+  const [noiseFilterEnabled, setNoiseFilterEnabled] = useState(localStorage.getItem("asgard_noise_filter") !== "false"); // Default true
   
   useEffect(() => {
     function handleNoiseFilterChange() {
@@ -135,6 +126,15 @@ export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioM
     window.addEventListener("asgard_noise_filter_change", handleNoiseFilterChange);
     return () => window.removeEventListener("asgard_noise_filter_change", handleNoiseFilterChange);
   }, []);
+
+  if (error) {
+    console.error("Erro na sala de voz:", error);
+    return null;
+  }
+
+  if (!token || !liveKitUrl) {
+    return null; // Connecting...
+  }
 
   const savedMicId = localStorage.getItem("asgard_mic_device");
   const audioOptions = !micMuted

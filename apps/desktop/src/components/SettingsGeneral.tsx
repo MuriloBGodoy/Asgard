@@ -15,7 +15,7 @@ export function SettingsGeneral() {
       try {
         let devs = await navigator.mediaDevices.enumerateDevices();
         if (devs.length > 0 && devs[0].label === "") {
-          // Precisamos de permissÃ£o para ler os nomes
+          // Precisamos de permissão para ler os nomes
           const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
           devs = await navigator.mediaDevices.enumerateDevices();
           stream.getTracks().forEach(t => t.stop());
@@ -64,7 +64,7 @@ export function SettingsGeneral() {
       {/* SIDEBAR DAS CONFIGURAÃ‡Ã•ES */}
       <div style={{ width: 240, background: "var(--bg-panel)", borderRight: "1px solid var(--border)", padding: "24px 12px", display: "flex", flexDirection: "column", gap: 8 }}>
         <h3 style={{ margin: "0 0 12px 12px", fontSize: 12, textTransform: "uppercase", color: "var(--text-secondary)" }}>
-          ConfiguraÃ§Ãµes do App
+          Configurações do App
         </h3>
         <div 
           onClick={() => setActiveTab("voice")}
@@ -76,13 +76,13 @@ export function SettingsGeneral() {
           onClick={() => setActiveTab("appearance")}
           style={{ padding: "8px 12px", borderRadius: 6, cursor: "pointer", background: activeTab === "appearance" ? "var(--bg-hover)" : "transparent", color: activeTab === "appearance" ? "var(--text-primary)" : "var(--text-secondary)", fontWeight: activeTab === "appearance" ? 500 : 400 }}
         >
-          AparÃªncia
+          Aparência
         </div>
         <div 
           onClick={() => setActiveTab("notifications")}
           style={{ padding: "8px 12px", borderRadius: 6, cursor: "pointer", background: activeTab === "notifications" ? "var(--bg-hover)" : "transparent", color: activeTab === "notifications" ? "var(--text-primary)" : "var(--text-secondary)", fontWeight: activeTab === "notifications" ? 500 : 400 }}
         >
-          NotificaÃ§Ãµes
+          Notificações
         </div>
       </div>
 
@@ -91,11 +91,11 @@ export function SettingsGeneral() {
         
         {activeTab === "voice" && (
           <div style={{ maxWidth: 600 }}>
-            <h2 style={{ margin: "0 0 24px 0", fontSize: 20 }}>ConfiguraÃ§Ãµes de Voz e Ãudio</h2>
+            <h2 style={{ margin: "0 0 24px 0", fontSize: 20 }}>Configurações de Voz e Ãudio</h2>
 
             {!permissionGranted && (
               <div style={{ padding: 12, background: "rgba(240,71,71,0.1)", color: "var(--danger)", borderRadius: 8, marginBottom: 24 }}>
-                VocÃª precisa permitir o acesso ao microfone para ver a lista de dispositivos.
+                Você precisa permitir o acesso ao microfone para ver a lista de dispositivos.
               </div>
             )}
 
@@ -109,7 +109,7 @@ export function SettingsGeneral() {
                 onChange={(e) => saveMic(e.target.value)}
                 style={{ width: "100%", padding: "10px 14px", background: "var(--bg-panel)", border: "1px solid var(--border)", color: "var(--text-primary)", borderRadius: 6, fontSize: 14 }}
               >
-                <option value="default">PadrÃ£o do Sistema</option>
+                <option value="default">Padrão do Sistema</option>
                 {audioInputs.map(d => (
                   <option key={d.deviceId} value={d.deviceId}>{d.label || "Microfone Desconhecido"}</option>
                 ))}
@@ -119,14 +119,14 @@ export function SettingsGeneral() {
             {/* DISPOSITIVO DE SAÃDA (ALTO-FALANTE) */}
             <div style={{ marginBottom: 32 }}>
               <label style={{ display: "block", marginBottom: 8, fontSize: 12, textTransform: "uppercase", fontWeight: 600, color: "var(--text-secondary)" }}>
-                Dispositivo de SaÃ­da
+                Dispositivo de Saída
               </label>
               <select 
                 value={speakerId}
                 onChange={(e) => saveSpeaker(e.target.value)}
                 style={{ width: "100%", padding: "10px 14px", background: "var(--bg-panel)", border: "1px solid var(--border)", color: "var(--text-primary)", borderRadius: 6, fontSize: 14 }}
               >
-                <option value="default">PadrÃ£o do Sistema</option>
+                <option value="default">Padrão do Sistema</option>
                 {audioOutputs.map(d => (
                   <option key={d.deviceId} value={d.deviceId}>{d.label || "Alto-falante Desconhecido"}</option>
                 ))}
@@ -155,7 +155,7 @@ export function SettingsGeneral() {
                 }}
               />
               <div style={{ fontSize: 11, color: "var(--text-secondary)", marginTop: 8 }}>
-                * O controle de ganho de software por navegador estÃ¡ em desenvolvimento experimental. Ele ficarÃ¡ salvo para futuras atualizaÃ§Ãµes.
+                * O controle de ganho de software por navegador está em desenvolvimento experimental. Ele ficará salvo para futuras atualizações.
               </div>
             </div>
                       {/* FILTRO DE RUÍDO (KRISP) */}
@@ -208,14 +208,14 @@ export function SettingsGeneral() {
 
         {activeTab === "appearance" && (
           <div style={{ maxWidth: 600 }}>
-            <h2 style={{ margin: "0 0 24px 0", fontSize: 20 }}>AparÃªncia</h2>
+            <h2 style={{ margin: "0 0 24px 0", fontSize: 20 }}>Aparência</h2>
             <div style={{ color: "var(--text-secondary)" }}>Em breve...</div>
           </div>
         )}
 
         {activeTab === "notifications" && (
           <div style={{ maxWidth: 600 }}>
-            <h2 style={{ margin: "0 0 24px 0", fontSize: 20 }}>NotificaÃ§Ãµes</h2>
+            <h2 style={{ margin: "0 0 24px 0", fontSize: 20 }}>Notificações</h2>
             <div style={{ color: "var(--text-secondary)" }}>Em breve...</div>
           </div>
         )}

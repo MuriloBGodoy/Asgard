@@ -40,13 +40,13 @@ export function ProfileSettings({ me, onUpdate }: Props) {
 
   return (
     <div style={{ padding: "60px", display: "flex", gap: "60px", maxWidth: "1000px", margin: "0 auto", width: "100%", color: "var(--text-primary)" }}>
-      {/* FormulÃ¡rio */}
+      {/* Formulário */}
       <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 32 }}>
         <h2 style={{ marginBottom: 0 }}>Meu Perfil</h2>
         <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 28 }}>
           
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <label style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", color: "var(--text-secondary)" }}>Nome de exibiÃ§Ã£o</label>
+            <label style={{ fontSize: 13, fontWeight: 700, textTransform: "uppercase", color: "var(--text-secondary)" }}>Nome de exibição</label>
             <input 
               value={username} 
               onChange={e => setUsername(e.target.value)}
@@ -95,7 +95,7 @@ export function ProfileSettings({ me, onUpdate }: Props) {
                 value={bannerColor.startsWith("#") ? bannerColor : "#5865F2"} 
                 onChange={e => setBannerColor(e.target.value)}
                 style={{ width: 64, height: 44, padding: 0, border: "none", borderRadius: 6, cursor: "pointer", background: "none" }}
-                title="Escolher Cor SÃ³lida"
+                title="Escolher Cor Sólida"
               />
               <span style={{ color: "var(--text-secondary)", fontSize: 14 }}>OU</span>
               
@@ -162,7 +162,7 @@ export function ProfileSettings({ me, onUpdate }: Props) {
                 transition: "opacity 0.2s"
               }}
             >
-              Descartar AlteraÃ§Ãµes
+              Descartar Alterações
             </button>
             <button 
               type="submit" 
@@ -178,7 +178,7 @@ export function ProfileSettings({ me, onUpdate }: Props) {
               }}
               disabled={isSaving}
             >
-              {isSaving ? "Salvando..." : "Salvar AlteraÃ§Ãµes"}
+              {isSaving ? "Salvando..." : "Salvar Alterações"}
             </button>
           </div>
         </form>

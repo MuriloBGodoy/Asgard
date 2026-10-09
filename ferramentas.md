@@ -31,3 +31,7 @@ Planejadas no roadmap, ainda não incluídas
 - LiveKit: voz, vídeo e compartilhamento de tela.
 - PixiJS ou Phaser: o metaverso 2D.
 - argon2 e JWT: login de verdade.
+
+REGRAS
+- não realizar commits e push sozinho, sempre questionar possiblidade do commit e, se aprovado, realizar o push.
+
