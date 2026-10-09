@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { ProfilePopover } from "./ProfilePopover";
 import type { Realm } from "../bindings/Realm";
 import type { User } from "../bindings/User";
@@ -145,19 +145,22 @@ export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, 
               return (
                 <ProfilePopover key={participant.user.id} user={participant.user}>
                   <div style={{ display: "flex", alignItems: "center", padding: "4px 12px 4px 32px", fontSize: "12px", color: "var(--text-secondary)", gap: "8px" }}>
-                  <div style={{ 
-                    width: 24, height: 24, borderRadius: "50%", background: "var(--primary)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", flexShrink: 0,
-                    border: isSpeaking ? "2px solid #43b581" : "2px solid transparent",
-                    boxShadow: isSpeaking ? "0 0 8px rgba(67, 181, 129, 0.4)" : "none",
-                    transition: "all 0.1s"
-                  }}>
-                    {participant.user.username.substring(0, 2).toUpperCase()}
-                  </div>
+                                      <div style={{ 
+                      width: 24, height: 24, borderRadius: "50%", background: "var(--primary)", color: "white", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "10px", flexShrink: 0,
+                      border: isSpeaking ? "2px solid #43b581" : "2px solid transparent",
+                      boxShadow: isSpeaking ? "0 0 8px rgba(67, 181, 129, 0.4)" : "none",
+                      transition: "all 0.1s",
+                      backgroundImage: participant.user.avatarUrl ? `url(${participant.user.avatarUrl})` : "none",
+                      backgroundSize: "cover",
+                      backgroundPosition: "center"
+                    }}>
+                      {!participant.user.avatarUrl && participant.user.username.substring(0, 2).toUpperCase()}
+                    </div>
                   <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, color: isSpeaking ? "var(--text-primary)" : "inherit" }}>
                     {participant.user.username}
                   </span>
                   
-                  {/* Ícones de status de voz */}
+                  {/* Ãcones de status de voz */}
                   <div style={{ display: "flex", gap: "4px" }}>
                     {participant.micMuted && (
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2">
@@ -292,4 +295,5 @@ export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, 
     </>
   );
 }
+
 

@@ -126,11 +126,21 @@ export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioM
     return null; // Connecting...
   }
 
+    const [noiseFilterEnabled, setNoiseFilterEnabled] = useState(localStorage.getItem("asgard_noise_filter") !== "false"); // Default true
+  
+  useEffect(() => {
+    function handleNoiseFilterChange() {
+      setNoiseFilterEnabled(localStorage.getItem("asgard_noise_filter") !== "false");
+    }
+    window.addEventListener("asgard_noise_filter_change", handleNoiseFilterChange);
+    return () => window.removeEventListener("asgard_noise_filter_change", handleNoiseFilterChange);
+  }, []);
+
   const savedMicId = localStorage.getItem("asgard_mic_device");
   const audioOptions = !micMuted
     ? {
         deviceId: savedMicId && savedMicId !== "default" ? savedMicId : undefined,
-        processor: krispFilter,
+        processor: noiseFilterEnabled ? krispFilter : undefined,
         echoCancellation: true,
         noiseSuppression: true,
         autoGainControl: true,
@@ -153,3 +163,4 @@ export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioM
     </div>
   );
 }
+
