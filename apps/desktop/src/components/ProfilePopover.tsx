@@ -15,22 +15,6 @@ export function ProfilePopover({ user, children }: Props) {
   const [coords, setCoords] = useState({ top: 0, left: 0 });
 
   useEffect(() => {
-    if (isOpen && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      // Tentamos colocar a esquerda do elemento
-      let left = rect.left - 320;
-      let top = rect.top;
-
-      if (left < 16) {
-        // Se não couber à esquerda, colocamos à direita
-        left = rect.right + 16;
-      }
-
-      setCoords({ top, left });
-    }
-  }, [isOpen]);
-
-  useEffect(() => {
     function handleClickOutside(e: MouseEvent) {
       if (
         popoverRef.current &&
@@ -53,7 +37,20 @@ export function ProfilePopover({ user, children }: Props) {
         ref: triggerRef,
         onClick: (e: React.MouseEvent) => {
           e.stopPropagation();
-          setIsOpen(!isOpen);
+          if (!isOpen) {
+            const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+            let left = rect.left - 320;
+            let top = rect.top;
+
+            if (left < 16) {
+              left = rect.right + 16;
+            }
+
+            setCoords({ top, left });
+            setIsOpen(true);
+          } else {
+            setIsOpen(false);
+          }
         },
         style: { ...((children as React.ReactElement<any>).props.style || {}), cursor: "pointer" },
       })}
