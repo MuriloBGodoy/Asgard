@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { LiveKitRoom, RoomAudioRenderer, useLocalParticipant } from "@livekit/components-react";
 import "@livekit/components-styles";
 import type { Channel } from "../bindings/Channel";
+import { VoiceGridPortal } from "./VoiceGridPortal";
 
 interface Props {
   channel: Channel;
@@ -9,6 +10,9 @@ interface Props {
   serverUrl: string;
   micMuted?: boolean;
   audioMuted?: boolean;
+  onToggleMic: () => void;
+  onToggleAudio: () => void;
+  onDisconnect: () => void;
 }
 
 // Sincroniza o estado de mute local com o LiveKit
@@ -88,6 +92,9 @@ export function VoiceRoom({
   serverUrl,
   micMuted = false,
   audioMuted = false,
+  onToggleMic,
+  onToggleAudio,
+  onDisconnect
 }: Props) {
   const [token, setToken] = useState<string | null>(null);
   const [liveKitUrl, setLiveKitUrl] = useState<string | null>(null);
@@ -100,8 +107,6 @@ export function VoiceRoom({
   }, [channel.id, asgard.joinVoice, asgard.leaveVoice]);
 
   useEffect(() => {
-    // Busca o token do nosso backend Rust
-    // O serverUrl no config j tem o "http://ip:porta", s precisamos adicionar /api/livekit/token
     const fetchToken = async () => {
       if (!asgard.me) return;
       try {
@@ -125,7 +130,7 @@ export function VoiceRoom({
 
   const [noiseFilterEnabled, setNoiseFilterEnabled] = useState(
     localStorage.getItem("asgard_noise_filter") !== "false",
-  ); // Default true
+  ); 
 
   useEffect(() => {
     function handleNoiseFilterChange() {
@@ -156,12 +161,20 @@ export function VoiceRoom({
     : false;
 
   return (
-    <div style={{ display: "none" }}>
+    <div style={{ position: "absolute", width: 0, height: 0, overflow: "hidden", pointerEvents: "none" }}>
       <LiveKitRoom video={false} audio={audioOptions} token={token} serverUrl={liveKitUrl}>
         <LiveKitMuteSync micMuted={micMuted} />
         <LiveKitDeviceSync />
         <ActiveSpeakersSync />
         {!audioMuted && <RoomAudioRenderer />}
+        <VoiceGridPortal
+           channel={channel}
+           micMuted={micMuted}
+           audioMuted={audioMuted}
+           onToggleMic={onToggleMic}
+           onToggleAudio={onToggleAudio}
+           onDisconnect={onDisconnect}
+        />
       </LiveKitRoom>
     </div>
   );

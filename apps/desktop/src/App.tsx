@@ -149,7 +149,10 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
           activeTextId={location.pathname.split("/").pop()}
           activeVoiceId={activeVoiceId ?? undefined}
           onSelectText={(id) => navigate(`/channels/${id}`)}
-          onSelectVoice={(id) => setActiveVoiceId(id)}
+          onSelectVoice={(id) => {
+            setActiveVoiceId(id);
+            navigate(`/channels/${id}`);
+          }}
           me={asgard.me}
           status={asgard.status}
           voiceStates={asgard.voiceStates}
@@ -208,6 +211,14 @@ function Workspace({ serverUrl, username }: { serverUrl: string; username: strin
           serverUrl={serverUrl}
           micMuted={micMuted}
           audioMuted={audioMuted}
+          onToggleMic={() => setMicMuted(!micMuted)}
+          onToggleAudio={() => {
+            const next = !audioMuted;
+            setAudioMuted(next);
+            if (next) setMicMuted(true);
+            else setMicMuted(false);
+          }}
+          onDisconnect={() => setActiveVoiceId(null)}
         />
       )}
     </div>
@@ -236,13 +247,12 @@ function ChannelRoute({ asgard, realm }: { asgard: ReturnType<typeof useAsgard>;
     return <div style={{ padding: 24, color: "var(--text-secondary)" }}>Canal não encontrado.</div>;
   }
 
-  // Se por acaso alguém navegar para a rota de voz via URL, a gente pode
-  // só mostrar um aviso ou redirecionar. Na nova arquitetura não navegamos pra voz.
   if (channel.kind === "voice") {
     return (
-      <div style={{ padding: 24, color: "var(--text-secondary)" }}>
-        Os canais de voz funcionam em background agora. Clique em um canal de texto para ver o chat!
-      </div>
+      <div
+        id="voice-grid-container"
+        style={{ flex: 1, display: "flex", flexDirection: "column", height: "100%", overflow: "hidden" }}
+      />
     );
   }
 

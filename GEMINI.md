@@ -18,7 +18,7 @@ Possui um backend em Rust (utilizando `axum` e `tokio` para WebSockets, além de
   - Os tipos são exportados para TypeScript (`apps/desktop/src/bindings`) utilizando a macro `#[ts(export)]`. Para sincronizar, rode `npm run bindings`.
 
 ## Regras Importantes e Restrições
-1. **Commits e Push**: NUNCA realize `git commit` ou `git push` sem a permissão explícita do usuário (conforme definido em `ferramentas.md`).
+1. **Commits e Push**: NUNCA realize `git commit` ou `git push` sem a permissão explícita do usuário. SEMPRE REALIZAR COMMITS EM PT-BR (conforme definido em `ferramentas.md`).
 2. **Edição de Arquivos (Codificação)**: Sempre utilize scripts em `Node.js` (ex: `fs.readFileSync` e `fs.writeFileSync`) ou a tool `replace_file_content` para editar arquivos que contenham acentuação ou caracteres especiais, pois o PowerShell corrompe a codificação UTF-8.
 3. **Fluxos Assíncronos**: Atente-se à inicialização de instâncias e aos efeitos do React (`useEffect`). Evite acessar campos de objetos que podem estar indefinidos durante o primeiro render (como `asgard.me.username`).
 
