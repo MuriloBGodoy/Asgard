@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { Channel } from "../bindings/Channel";
 import type { Message } from "../bindings/Message";
@@ -180,7 +180,7 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
         }}>
           {availableOrBusy.length > 0 && (
             <>
-              <div className="channel-group-title">Disponíveis â€” {availableOrBusy.length}</div>
+              <div className="channel-group-title">Disponíveis - {availableOrBusy.length}</div>
               {availableOrBusy.map(user => (
                 <ProfilePopover key={user.id} user={user}>
                   <div className="member-item">
@@ -209,7 +209,7 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
           {away.length > 0 && (
             <>
               <div className="channel-group-title" style={availableOrBusy.length > 0 ? { marginTop: 16 } : {}}>
-                Ausentes â€” {away.length}
+                Ausentes - {away.length}
               </div>
               {away.map(user => (
                 <ProfilePopover key={user.id} user={user}>
@@ -239,7 +239,7 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
           {offline.length > 0 && (
             <>
               <div className="channel-group-title" style={(availableOrBusy.length > 0 || away.length > 0) ? { marginTop: 16 } : {}}>
-                Offline â€” {offline.length}
+                Offline - {offline.length}
               </div>
               {offline.map(user => (
                 <ProfilePopover key={user.id} user={user}>

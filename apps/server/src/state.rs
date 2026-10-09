@@ -123,7 +123,7 @@ impl AppState {
         self.inner.voice_states.read().await.clone()
     }
 
-    pub async fn join_voice(&self, user: User, channel_id: Uuid) {
+    pub async fn join_voice(&self, user: User, channel_id: Uuid, mic_muted: bool, deafened: bool) {
         // Primeiro remove o usuario de qualquer outro canal de voz
         self.leave_voice(&user).await;
         
@@ -131,8 +131,8 @@ impl AppState {
         let channel_users = states.entry(channel_id).or_default();
         channel_users.push(VoiceParticipant {
             user: user.clone(),
-            mic_muted: false,
-            deafened: false,
+            mic_muted,
+            deafened,
         });
         
         let participants = channel_users.clone();

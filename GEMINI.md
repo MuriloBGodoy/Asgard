@@ -1,36 +1,30 @@
-# Asgard - Contexto do Projeto
+# Contexto do Projeto: Asgard
 
-## Sobre o Projeto
-O Asgard é uma aplicação similar ao Discord (chat de texto e salas de voz em tempo real). Ele usa um modelo cliente-servidor, sendo constituído por um Backend em Rust (Asgard Server) e um Frontend/Desktop app em Tauri + React (Asgard Desktop).
+## Visão Geral
+Asgard é uma aplicação de chat de voz e texto, no estilo Discord.
+Possui um backend em Rust (utilizando `axum` e `tokio` para WebSockets, além de integração com LiveKit) e um frontend em React + TypeScript + Vite.
 
-## Stack Tecnológica
-**Frontend (Desktop App - \`apps/desktop\`)**
-- **Tauri v2**: Framework para construir o desktop app de forma leve usando webviews.
-- **React 19 & TypeScript 7**: Interface de usuário e tipagem.
-- **Vite 8**: Bundler e dev server.
-- **LiveKit Components**: Utilizado para implementação de canais de voz, transmissão de áudio e cancelamento de ruído (Krisp).
+## Arquitetura
+- **Backend (Rust)**:
+  - `apps/server`: Servidor HTTP e WebSocket.
+  - O estado atual (`AppState` em `apps/server/src/state.rs`) guarda realms, channels, usuários conectados (`online`), mensagens e os estados de voz (`voice_states`).
+  - `apps/server/src/ws.rs`: Lida com conexões WebSocket e propaga os eventos do protocolo.
+- **Frontend (Tauri + React + Vite)**:
+  - `apps/desktop/src`: Código fonte do frontend.
+  - Utiliza `@livekit/components-react` para conexão de voz e vídeo (WebRTC).
+  - O hook central `useAsgard.ts` gerencia o estado global (mensagens, voz, status, presença) comunicando-se via WebSocket.
+- **Protocolo Compartilhado**:
+  - `crates/protocol`: Biblioteca em Rust com definições de eventos e estruturas (`Message`, `User`, `JoinVoice`, `VoiceParticipant`, etc.).
+  - Os tipos são exportados para TypeScript (`apps/desktop/src/bindings`) utilizando a macro `#[ts(export)]`. Para sincronizar, rode `npm run bindings`.
 
-**Backend (Server - \`apps/server\`)**
-- **Rust (2024 edition)**: Linguagem principal do servidor.
-- **Axum 0.8 & Tokio**: Framework web assíncrono para rotas HTTP REST e conexões WebSocket.
-- **LiveKit Server API**: Para gerenciar salas e permissões de voz.
+## Regras Importantes e Restrições
+1. **Commits e Push**: NUNCA realize `git commit` ou `git push` sem a permissão explícita do usuário (conforme definido em `ferramentas.md`).
+2. **Edição de Arquivos (Codificação)**: Sempre utilize scripts em `Node.js` (ex: `fs.readFileSync` e `fs.writeFileSync`) ou a tool `replace_file_content` para editar arquivos que contenham acentuação ou caracteres especiais, pois o PowerShell corrompe a codificação UTF-8.
+3. **Fluxos Assíncronos**: Atente-se à inicialização de instâncias e aos efeitos do React (`useEffect`). Evite acessar campos de objetos que podem estar indefinidos durante o primeiro render (como `asgard.me.username`).
 
-**Compartilhado e Ferramentas**
-- **Protocolo**: `ts-rs` gera tipos TypeScript a partir do Rust. `serde` e `uuid` para serialização e IDs.
-- **Comunicação**: WebSocket para chat em tempo real e HTTP para listagens e histórico.
-- **Monorepo**: Cargo Workspace (Rust) e NPM Workspaces (Node) lado a lado no mesmo repositório.
+## Dicas de Manutenção e Problemas Conhecidos
+- **VoiceRoom e Crashes**: Ao usar processadores de áudio (ex: `KrispNoiseFilter`), certifique-se de não passar `null` para as props do LiveKit, o que causa um *crash* invisível (tela preta).
+- **Mute de Áudio**: O estado de mudo (`micMuted`, `audioMuted`) é sincronizado globalmente no `App.tsx` e injetado tanto no protocolo (`JoinVoice`, `UpdateVoiceState`) quanto na `VoiceRoom`.
+- **Status do Usuário**: A alteração de status afeta a visualização na barra lateral (`ChatView.tsx`) e requer sincronia com o backend (`updateUserStatus`).
 
-## Estado Atual
-- Implementamos o Chat de Texto básico e listagem de canais/salas.
-- Implementamos Canais de Voz usando **LiveKit**.
-- Implementamos filtro de cancelamento de ruído **Krisp** com opção para o usuário ligar/desligar na tela de Configurações.
-- As opções de configuração de filtro de ruído ficam na mesma rota de configuração de áudio.
-
-## Problemas Crônicos a Evitar
-1. **Regra dos Hooks (React)**: Não utilizar `useState` ou `useEffect` de forma condicional, especialmente após early-returns (como a verificação de token no `VoiceRoom.tsx`).
-2. **Encoding de Caracteres no Windows**: Scripts PowerShell costumam quebrar caracteres especiais (acentos, `ç`, etc) ao usar `Set-Content` em UTF-8. Para buscar e substituir textos contendo acentos, utilizar scripts em NodeJS.
-3. **Substituição Global de Strings Cega**: Nunca fazer _replace_ global e cego como `replace('no', 'não')` sem limites de palavra (`\b`), pois quebra keywords de código em inglês (ex: `none` -> `nãone`).
-
-## Regras de Workflow do Assistente
-- **NUNCA FAÇA COMMIT OU PUSH AUTOMATICAMENTE** sem perguntar primeiro ao usuário, conforme estabelecido no documento `ferramentas.md`.
-- Leia este `GEMINI.md` periodicamente quando trocar de máquina ou perder o contexto.
+Utilize este documento para revisar as diretrizes de desenvolvimento antes de tomar decisões complexas, economizando processamento e evitando alucinações.

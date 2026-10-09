@@ -160,7 +160,7 @@ export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, 
                     {participant.user.username}
                   </span>
                   
-                  {/* Ãcones de status de voz */}
+                  {/* Ícones de status de voz */}
                   <div style={{ display: "flex", gap: "4px" }}>
                     {participant.micMuted && (
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" strokeWidth="2">

@@ -148,6 +148,8 @@ pub struct UpdateVoiceState {
 #[ts(export)]
 pub struct JoinVoice {
     pub channel_id: Uuid,
+    pub mic_muted: bool,
+    pub deafened: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, TS)]

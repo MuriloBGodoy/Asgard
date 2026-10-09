@@ -203,8 +203,8 @@ export function useAsgard(serverUrl: string, username: string) {
     [serverUrl],
   );
 
-  const joinVoice = useCallback((channelId: string) => {
-    gateway.current?.send({ type: "joinVoice", data: { channelId } });
+  const joinVoice = useCallback((channelId: string, micMuted: boolean, deafened: boolean) => {
+    gateway.current?.send({ type: "joinVoice", data: { channelId, micMuted, deafened } } as any);
   }, []);
 
   const leaveVoice = useCallback(() => {

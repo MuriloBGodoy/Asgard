@@ -92,14 +92,16 @@ export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioM
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    asgard.joinVoice(channel.id);
+    asgard.joinVoice(channel.id, micMuted, audioMuted);
     return () => asgard.leaveVoice();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [channel.id, asgard.joinVoice, asgard.leaveVoice]);
 
   useEffect(() => {
     // Busca o token do nosso backend Rust
     // O serverUrl no config j tem o "http://ip:porta", s precisamos adicionar /api/livekit/token
     const fetchToken = async () => {
+      if (!asgard.me) return;
       try {
         const httpUrl = serverUrl.replace("ws://", "http://").replace("wss://", "https://");
         const res = await fetch(`${httpUrl}/api/livekit/token?room=${encodeURIComponent(channel.id)}&participant_name=${encodeURIComponent(asgard.me.username)}`);
@@ -140,7 +142,7 @@ export function VoiceRoom({ channel, asgard, serverUrl, micMuted = false, audioM
   const audioOptions = !micMuted
     ? {
         deviceId: savedMicId && savedMicId !== "default" ? savedMicId : undefined,
-        processor: noiseFilterEnabled ? krispFilter : undefined,
+        processor: noiseFilterEnabled && krispFilter ? krispFilter : undefined,
         echoCancellation: true,
         noiseSuppression: true,
         autoGainControl: true,

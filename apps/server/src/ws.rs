@@ -99,8 +99,8 @@ async fn handle_socket(socket: WebSocket, state: AppState) {
                     state.post_message(user.clone(), channel_id, content).await;
                 }
             }
-            Ok(ClientEvent::JoinVoice(asgard_protocol::JoinVoice { channel_id })) => {
-                state.join_voice(user.clone(), channel_id).await;
+            Ok(ClientEvent::JoinVoice(payload)) => {
+                state.join_voice(user.clone(), payload.channel_id, payload.mic_muted, payload.deafened).await;
             }
             Ok(ClientEvent::LeaveVoice) => {
                 state.leave_voice(&user).await;

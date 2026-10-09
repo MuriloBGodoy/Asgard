@@ -61,7 +61,7 @@ export function SettingsGeneral() {
 
   return (
     <div style={{ display: "flex", height: "100%", width: "100%" }}>
-      {/* SIDEBAR DAS CONFIGURAÃ‡Ã•ES */}
+      {/* SIDEBAR DAS CONFIGURAÇÕES */}
       <div style={{ width: 240, background: "var(--bg-panel)", borderRight: "1px solid var(--border)", padding: "24px 12px", display: "flex", flexDirection: "column", gap: 8 }}>
         <h3 style={{ margin: "0 0 12px 12px", fontSize: 12, textTransform: "uppercase", color: "var(--text-secondary)" }}>
           Configurações do App
@@ -70,7 +70,7 @@ export function SettingsGeneral() {
           onClick={() => setActiveTab("voice")}
           style={{ padding: "8px 12px", borderRadius: 6, cursor: "pointer", background: activeTab === "voice" ? "var(--bg-hover)" : "transparent", color: activeTab === "voice" ? "var(--text-primary)" : "var(--text-secondary)", fontWeight: activeTab === "voice" ? 500 : 400 }}
         >
-          Voz e Ãudio
+          Voz e Áudio
         </div>
         <div 
           onClick={() => setActiveTab("appearance")}
@@ -86,12 +86,12 @@ export function SettingsGeneral() {
         </div>
       </div>
 
-      {/* CONTEÃšDO PRINCIPAL */}
+      {/* CONTEÚDO PRINCIPAL */}
       <div style={{ flex: 1, padding: 40, overflowY: "auto", color: "var(--text-primary)" }}>
         
         {activeTab === "voice" && (
           <div style={{ maxWidth: 600 }}>
-            <h2 style={{ margin: "0 0 24px 0", fontSize: 20 }}>Configurações de Voz e Ãudio</h2>
+            <h2 style={{ margin: "0 0 24px 0", fontSize: 20 }}>Configurações de Voz e Áudio</h2>
 
             {!permissionGranted && (
               <div style={{ padding: 12, background: "rgba(240,71,71,0.1)", color: "var(--danger)", borderRadius: 8, marginBottom: 24 }}>
@@ -116,7 +116,7 @@ export function SettingsGeneral() {
               </select>
             </div>
 
-            {/* DISPOSITIVO DE SAÃDA (ALTO-FALANTE) */}
+            {/* DISPOSITIVO DE SAÍDA (ALTO-FALANTE) */}
             <div style={{ marginBottom: 32 }}>
               <label style={{ display: "block", marginBottom: 8, fontSize: 12, textTransform: "uppercase", fontWeight: 600, color: "var(--text-secondary)" }}>
                 Dispositivo de Saída

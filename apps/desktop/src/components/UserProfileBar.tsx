@@ -91,7 +91,7 @@ export function UserProfileBar({
         )}
       </div>
 
-      {/* Controles de Ãudio */}
+      {/* Controles de Áudio */}
       <div className="audio-controls">
         {inVoiceChannel && onDisconnect && (
           <button 
@@ -100,7 +100,7 @@ export function UserProfileBar({
             title="Desconectar da Voz"
             style={{ color: "var(--danger)" }}
           >
-            {/* Ãcone log-out (Lucide) */}
+            {/* Ícone log-out (Lucide) */}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/>
@@ -126,7 +126,7 @@ export function UserProfileBar({
         <button 
           className={`control-btn ${audioMuted ? "muted" : ""}`}
           onClick={toggleAudio}
-          title={audioMuted ? "Ãudio Mutado" : "Mutar Ãudio"}
+          title={audioMuted ? "Áudio Mutado" : "Mutar Áudio"}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
