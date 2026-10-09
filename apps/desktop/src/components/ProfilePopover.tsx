@@ -44,13 +44,13 @@ export function ProfilePopover({ user, children }: Props) {
 
   return (
     <>
-      {React.cloneElement(children as React.ReactElement, {
+      {React.cloneElement(children as React.ReactElement<any>,  {
         ref: triggerRef,
         onClick: (e: React.MouseEvent) => {
           e.stopPropagation();
           setIsOpen(!isOpen);
         },
-        style: { ...((children as React.ReactElement).props.style || {}), cursor: "pointer" }
+        style: { ...((children as React.ReactElement<any>).props.style || {}), cursor: "pointer" }
       })}
 
       {isOpen && createPortal(
@@ -72,8 +72,8 @@ export function ProfilePopover({ user, children }: Props) {
           <div style={{ 
             height: 120, 
             width: "100%",
-            backgroundColor: (user.bannerColor && !user.bannerColor.startsWith("data:")) ? user.bannerColor : "#5865F2",
-            backgroundImage: (user.bannerColor && user.bannerColor.startsWith("data:")) ? `url(${user.bannerColor})` : "none",
+            backgroundColor: (user.banner_color && !user.banner_color.startsWith("data:")) ? user.banner_color : "#5865F2",
+            backgroundImage: (user.banner_color && user.banner_color.startsWith("data:")) ? `url(${user.banner_color})` : "none",
             backgroundSize: "cover",
             backgroundPosition: "center"
           }} />
@@ -100,11 +100,11 @@ export function ProfilePopover({ user, children }: Props) {
                   color: "#fff",
                   fontSize: 24,
                   fontWeight: 600,
-                  backgroundImage: user.avatarUrl ? `url(${user.avatarUrl})` : "none",
+                  backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none",
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                 }}>
-                  {!user.avatarUrl && user.username.substring(0, 2).toUpperCase()}
+                  {!user.avatar_url && user.username.substring(0, 2).toUpperCase()}
                 </div>
               </div>
 
@@ -141,4 +141,7 @@ export function ProfilePopover({ user, children }: Props) {
     </>
   );
 }
+
+
+
 

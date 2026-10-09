@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import type { UserStatus } from "../bindings/UserStatus";
 import type { User } from "../bindings/User";
@@ -30,10 +30,10 @@ export function UserProfileBar({
   const [showStatusMenu, setShowStatusMenu] = useState(false);
 
   const statusOptions: { id: UserStatus; label: string; color: string }[] = [
-    { id: "online", label: "Disponível", color: "#43b581" },
+    { id: "online", label: "DisponÃ­vel", color: "#43b581" },
     { id: "away", label: "Ausente", color: "#faa61a" },
     { id: "busy", label: "Ocupado", color: "#f04747" },
-    { id: "invisible", label: "Invisível", color: "#747f8d" },
+    { id: "invisible", label: "InvisÃ­vel", color: "#747f8d" },
   ];
   const currentStatusObj = statusOptions.find(s => s.id === currentStatus) || statusOptions[0];
 
@@ -52,13 +52,13 @@ export function UserProfileBar({
       <div 
         className="user-avatar interactive" 
         onClick={() => navigate("/settings/profile")}
-        title="Configurações de Perfil"
-        style={{ backgroundImage: user.avatarUrl ? `url(${user.avatarUrl})` : "none", backgroundSize: "cover", backgroundPosition: "center" }}
+        title="ConfiguraÃ§Ãµes de Perfil"
+        style={{ backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none", backgroundSize: "cover", backgroundPosition: "center" }}
       >
-        {!user.avatarUrl && user.username.substring(0, 2).toUpperCase()}
+        {!user.avatar_url && user.username.substring(0, 2).toUpperCase()}
       </div>
       
-      {/* Informações (Status alterável) */}
+      {/* InformaÃ§Ãµes (Status alterÃ¡vel) */}
       <div className="user-info" style={{ position: "relative", display: "flex", flexDirection: "column", justifyContent: "center" }}>
         <div className="user-name">{user.username}</div>
         <div 
@@ -91,7 +91,7 @@ export function UserProfileBar({
         )}
       </div>
 
-      {/* Controles de Áudio */}
+      {/* Controles de Ãudio */}
       <div className="audio-controls">
         {inVoiceChannel && onDisconnect && (
           <button 
@@ -100,7 +100,7 @@ export function UserProfileBar({
             title="Desconectar da Voz"
             style={{ color: "var(--danger)" }}
           >
-            {/* Ícone log-out (Lucide) */}
+            {/* Ãcone log-out (Lucide) */}
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
               <polyline points="16 17 21 12 16 7"/>
@@ -126,7 +126,7 @@ export function UserProfileBar({
         <button 
           className={`control-btn ${audioMuted ? "muted" : ""}`}
           onClick={toggleAudio}
-          title={audioMuted ? "Áudio Mutado" : "Mutar Áudio"}
+          title={audioMuted ? "Ãudio Mutado" : "Mutar Ãudio"}
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
@@ -139,7 +139,7 @@ export function UserProfileBar({
         <button 
           className="control-btn"
           onClick={() => navigate("/settings/general")}
-          title="Configurações Gerais"
+          title="ConfiguraÃ§Ãµes Gerais"
         >
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <circle cx="12" cy="12" r="3" />
@@ -150,3 +150,4 @@ export function UserProfileBar({
     </div>
   );
 }
+

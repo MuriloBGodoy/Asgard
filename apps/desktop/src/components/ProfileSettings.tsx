@@ -8,8 +8,8 @@ interface Props {
 
 export function ProfileSettings({ me, onUpdate }: Props) {
   const [username, setUsername] = useState(me.username);
-  const [avatarUrl, setAvatarUrl] = useState(me.avatarUrl ?? "");
-  const [bannerColor, setBannerColor] = useState(me.bannerColor ?? "#5865F2");
+  const [avatarUrl, setAvatarUrl] = useState(me.avatar_url ?? "");
+  const [bannerColor, setBannerColor] = useState(me.banner_color ?? "#5865F2");
   const [bio, setBio] = useState(me.bio ?? "");
 
   const [isSaving, setIsSaving] = useState(false);
@@ -147,8 +147,8 @@ export function ProfileSettings({ me, onUpdate }: Props) {
               type="button"
               onClick={() => {
                 setUsername(me.username);
-                setAvatarUrl(me.avatarUrl ?? "");
-                setBannerColor(me.bannerColor ?? "#5865F2");
+                setAvatarUrl(me.avatar_url ?? "");
+                setBannerColor(me.banner_color ?? "#5865F2");
                 setBio(me.bio ?? "");
               }}
               style={{ 
@@ -265,4 +265,5 @@ export function ProfileSettings({ me, onUpdate }: Props) {
     </div>
   );
 }
+
 

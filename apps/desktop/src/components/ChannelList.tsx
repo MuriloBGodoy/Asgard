@@ -150,11 +150,11 @@ export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, 
                       border: isSpeaking ? "2px solid #43b581" : "2px solid transparent",
                       boxShadow: isSpeaking ? "0 0 8px rgba(67, 181, 129, 0.4)" : "none",
                       transition: "all 0.1s",
-                      backgroundImage: participant.user.avatarUrl ? `url(${participant.user.avatarUrl})` : "none",
+                      backgroundImage: participant.user.avatar_url ? `url(${participant.user.avatar_url})` : "none",
                       backgroundSize: "cover",
                       backgroundPosition: "center"
                     }}>
-                      {!participant.user.avatarUrl && participant.user.username.substring(0, 2).toUpperCase()}
+                      {!participant.user.avatar_url && participant.user.username.substring(0, 2).toUpperCase()}
                     </div>
                   <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1, color: isSpeaking ? "var(--text-primary)" : "inherit" }}>
                     {participant.user.username}
@@ -295,5 +295,6 @@ export function ChannelList({ realm, activeTextId, activeVoiceId, onSelectText, 
     </>
   );
 }
+
 
 

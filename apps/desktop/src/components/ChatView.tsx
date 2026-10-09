@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent } from "react";
+﻿import { useEffect, useRef, useState, type FormEvent } from "react";
 import { useVirtualizer } from "@tanstack/react-virtual";
 import type { Channel } from "../bindings/Channel";
 import type { Message } from "../bindings/Message";
@@ -44,16 +44,16 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
 
   if (!channel) return <div style={{padding: 24, color: "var(--text-secondary)"}}>Selecione um canal</div>;
 
-  // Categorizar usuários para exibir na barra lateral (Status real)
+  // Categorizar usuÃ¡rios para exibir na barra lateral (Status real)
   const availableOrBusy: (User & { st: { label: string, color: string } })[] = [];
   const away: (User & { st: { label: string, color: string } })[] = [];
   const offline: (User & { st: { label: string, color: string } })[] = [];
 
   const statusMap = {
-    online: { label: "Disponível", color: "#43b581" },
+    online: { label: "DisponÃ­vel", color: "#43b581" },
     away: { label: "Ausente", color: "#faa61a" },
     busy: { label: "Ocupado", color: "#f04747" },
-    invisible: { label: "Invisível", color: "#747f8d" },
+    invisible: { label: "InvisÃ­vel", color: "#747f8d" },
   };
 
   online.forEach(u => {
@@ -68,7 +68,7 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
     }
   });
 
-  // Ordenar usuários (Disponível primeiro, Ocupado depois) - opcional
+  // Ordenar usuÃ¡rios (DisponÃ­vel primeiro, Ocupado depois) - opcional
   availableOrBusy.sort((a, b) => {
     if (a.status === b.status) return a.username.localeCompare(b.username);
     return a.status === "online" ? -1 : 1;
@@ -180,13 +180,13 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
         }}>
           {availableOrBusy.length > 0 && (
             <>
-              <div className="channel-group-title">Disponíveis — {availableOrBusy.length}</div>
+              <div className="channel-group-title">DisponÃ­veis â€” {availableOrBusy.length}</div>
               {availableOrBusy.map(user => (
                 <ProfilePopover key={user.id} user={user}>
                   <div className="member-item">
                     <div style={{ position: "relative", width: 32, height: 32 }}>
-                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatarUrl ? `url(${user.avatarUrl})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
-                        {!user.avatarUrl && user.username.substring(0, 2).toUpperCase()}
+                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
+                        {!user.avatar_url && user.username.substring(0, 2).toUpperCase()}
                       </span>
                       <span style={{
                         position: "absolute",
@@ -209,14 +209,14 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
           {away.length > 0 && (
             <>
               <div className="channel-group-title" style={availableOrBusy.length > 0 ? { marginTop: 16 } : {}}>
-                Ausentes — {away.length}
+                Ausentes â€” {away.length}
               </div>
               {away.map(user => (
                 <ProfilePopover key={user.id} user={user}>
                   <div className="member-item" style={{ opacity: 0.5 }}>
                     <div style={{ position: "relative", width: 32, height: 32 }}>
-                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatarUrl ? `url(${user.avatarUrl})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
-                        {!user.avatarUrl && user.username.substring(0, 2).toUpperCase()}
+                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
+                        {!user.avatar_url && user.username.substring(0, 2).toUpperCase()}
                       </span>
                       <span style={{
                         position: "absolute",
@@ -239,14 +239,14 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
           {offline.length > 0 && (
             <>
               <div className="channel-group-title" style={(availableOrBusy.length > 0 || away.length > 0) ? { marginTop: 16 } : {}}>
-                Offline — {offline.length}
+                Offline â€” {offline.length}
               </div>
               {offline.map(user => (
                 <ProfilePopover key={user.id} user={user}>
                   <div className="member-item" style={{ opacity: 0.5 }}>
                     <div style={{ position: "relative", width: 32, height: 32 }}>
-                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatarUrl ? `url(${user.avatarUrl})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
-                        {!user.avatarUrl && user.username.substring(0, 2).toUpperCase()}
+                      <span className="user-avatar" style={{width: "100%", height: "100%", backgroundImage: user.avatar_url ? `url(${user.avatar_url})` : "none", backgroundSize: "cover", backgroundPosition: "center"}}>
+                        {!user.avatar_url && user.username.substring(0, 2).toUpperCase()}
                       </span>
                       <span style={{
                         position: "absolute",
@@ -270,3 +270,4 @@ export function ChatView({ channel, messages, error, online, onSend }: Props) {
     </div>
   );
 }
+
